@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SKAÐI — софт для EV сервисов</title>
+<meta name="description" content="SKAÐI — набор инженерных инструментов для сервиса электромобилей: диагностика и конфигурация, программирование микросхем, просмотр плат.">
+<link rel="icon" href="assets/logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- preloader -->
+<div class="pre" id="pre" aria-hidden="true">
+  <div class="pre-l">
+    <img src="assets/logo.svg" alt="">
+    <span>Софт для EV сервисов</span>
+  </div>
+  <div class="pre-n"><span id="preN">00</span></div>
+</div>
+
+<header class="top">
+  <a class="logo" href="#top" aria-label="SKAÐI"><img src="assets/logo.svg" alt=""><b>SKAÐI</b></a>
+  <div class="top-r">
+    <a class="btn ghost" href="#pricing">Тарифы</a>
+    <a class="btn" href="https://t.me/skadiauto" target="_blank" rel="noopener">Telegram</a>
+  </div>
+</header>
+
+<main id="top">
+<section class="flight" id="flight">
+  <div class="stage" id="stage">
+    <div class="frame" id="frame">
+
+      <!-- scenes: every plate is a 1672×941 world, cover-scaled in JS; cars live in world coordinates -->
+      <div class="scenes" id="scenes"></div>
+      <div class="grade" id="grade"></div>
+      <div class="scrim"></div>
+
+      <!-- the hero object: laptop on a steel bench, fixed while the service changes around it -->
+      <div class="desk" id="desk">
+        <div class="desk-ext l" aria-hidden="true"></div><div class="desk-ext r" aria-hidden="true"></div>
+        <div class="screen" id="screen">
+
+          <div class="scr s-term" data-screen="term">
+            <div class="win-bar dark"><i></i><i></i><i></i><span>SKAÐI — diagnostics</span></div>
+            <pre class="term" id="term"></pre>
+          </div>
+
+          <div class="scr s-dcan" data-screen="dcan">
+            <div class="win-bar"><i></i><i></i><i></i><span>SKAÐI/ÐCAN</span><em>CAN 500k</em><em>LAN ok</em><em class="ok">Tesla</em></div>
+            <div class="app">
+              <aside>
+                <small>Блоки</small>
+                <b class="on">VCFRONT</b><b>RCM</b><b>VCSEC</b><b>LV Battery</b><b>ВВБ</b>
+              </aside>
+              <div class="app-main">
+                <div class="app-h"><b>VCFRONT</b><span>214 params · fw 2024.44.25</span></div>
+                <dl class="params">
+                  <div><dt>unit region</dt><dd>EU</dd></div>
+                  <div><dt>country</dt><dd>NL</dd></div>
+                  <div><dt>dasHw</dt><dd>TESLA_AP3</dd></div>
+                  <div><dt>packEnergy</dt><dd>75</dd></div>
+                </dl>
+                <div class="tasks">
+                  <button>Диагностика</button><button>Полная проверка ВВБ</button><button>Проверка сертификатов</button>
+                  <button>Прошивка блоков</button><button>Адаптация периферии</button><button>Конфигурация</button>
+                </div>
+                <div class="job"><span>task battery.full_test</span><div class="bar"><i id="jobBar"></i></div><span id="jobPct">0%</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="scr s-vid" data-screen="flasher"><video src="assets/flasher-s.mp4" muted loop playsinline preload="metadata"></video></div>
+          <div class="scr s-vid" data-screen="board"><video data-start="13" src="assets/board-s.mp4" muted loop playsinline preload="metadata"></video></div>
+
+          <div class="scr s-why" data-screen="why">
+            <div class="win-bar dark"><i></i><i></i><i></i><span>SKAÐI</span></div>
+            <div class="why-in">
+              <div class="big"><span>−</span><span id="whyN">0</span><span>%</span></div>
+              <p>рутинной работы</p>
+              <ul>
+                <li><i></i>Удобные решения под рукой</li>
+                <li><i></i>Интуитивность и структура</li>
+                <li><i></i>Кнопки вместо ручной работы</li>
+                <li><i></i>Поддержка — в сообществе мастеров</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="scr s-term s-pro" data-screen="pro">
+            <div class="win-bar dark"><i></i><i></i><i></i><span>SKAÐI — требования к мастеру</span></div>
+            <ul class="checks">
+              <li>Диагностика электромобилей</li>
+              <li>Мультиметр, мегаомметр</li>
+              <li>Электрика и чтение схем</li>
+              <li>Пайка, BGA, JTAG</li>
+              <li>Диагностические порты: провода и адаптеры</li>
+              <li>Tigard, PEmicro</li>
+              <li class="warn">Все процедуры, производимые мастером, влекут необратимые последствия</li>
+            </ul>
+          </div>
+
+        </div>
+        <div class="desk-tint" id="tint"></div>
+        <img class="mac" src="assets/desk.webp" alt="Ноутбук с открытым софтом SKAÐI на стальном столе">
+      </div>
+
+      <!-- copy -->
+      <div class="copy">
+        <article class="blk hero" data-ch="0">
+          <p class="kick">CAN · LAN · JTAG · SPI</p>
+          <h1><span>Софт</span><span>для EV</span><span>сервисов</span></h1>
+          <div class="glass">
+            <p class="lead">SKAÐI — набор инженерных инструментов: диагностика и конфигурация, программирование микросхем, просмотр плат.</p>
+            <a class="more" href="#pricing">Наши программы</a>
+          </div>
+        </article>
+        <article class="blk" data-ch="1">
+          <p class="kick">01 / SKAÐI/ÐCAN</p>
+          <h2><span>Диагностика</span><span>и работа</span><span>с блоками</span></h2>
+          <div class="glass">
+            <p class="lead">Полная поддержка Tesla. Отдельные функции — для Xiaomi и Lucid.</p>
+            <p class="price">от <b>250 $</b> в месяц</p>
+            <a class="more" href="#pricing">Тарифы</a>
+          </div>
+        </article>
+        <article class="blk" data-ch="2">
+          <p class="kick">02 / Flasher <em>Новинка</em></p>
+          <h2><span>Внутрисхемная</span><span>работа</span><span>с микросхемами</span></h2>
+          <div class="glass">
+            <p class="lead">Чтение и запись микроконтроллеров SPC / MPC по JTAG, работа с SPI Flash. Требуется Tigard — заменяет P&amp;E Micro.</p>
+            <p class="price"><b>500 $</b> в год</p>
+            <a class="more" href="#pricing">Купить</a>
+          </div>
+        </article>
+        <article class="blk" data-ch="3">
+          <p class="kick">03 / BoardViewer <em>Новинка</em></p>
+          <h2><span>Смотрим платы</span><span>Tesla, Geely, BYD</span></h2>
+          <div class="glass">
+            <p class="lead">Сканы плат в высоком разрешении: прослеживайте дорожки от края до края и сравнивайте схему с реальными фото, чтобы быстро находить компоненты и повреждения.</p>
+            <p class="tags"><span>Tesla</span><span>AITO</span><span>Geely</span><span>BYD</span><span>NIO</span><span>XPeng</span></p>
+            <a class="more" href="#pricing">Купить</a>
+          </div>
+        </article>
+        <article class="blk" data-ch="4">
+          <p class="kick">04 / Почему SKAÐIAUTO</p>
+          <h2><span>Автоматизацию</span><span>работы</span><span>мы берём на себя</span></h2>
+          <div class="glass">
+            <p class="lead">Вам не нужно делать всё вручную — для типовых процедур мы создали кнопки.</p>
+            <a class="more" href="#pricing">Тарифы</a>
+          </div>
+        </article>
+        <article class="blk" data-ch="5">
+          <p class="kick">05 / Наш софт</p>
+          <h2 class="h-long"><span>Для профессионального</span><span>сервиса</span></h2>
+          <div class="glass">
+            <p class="lead">Работа с современными EV требует специальных навыков. Владеете базой? Получите boost с продуктами SKAÐI.</p>
+            <a class="more" href="https://t.me/skadiauto" target="_blank" rel="noopener">Написать менеджеру</a>
+          </div>
+        </article>
+        <article class="blk outro" data-ch="6">
+          <p class="kick">Тарифы и покупка</p>
+          <h2><span>Выберите</span><span>свой набор</span></h2>
+        </article>
+      </div>
+
+      <div class="hud" aria-hidden="true">
+        <span id="hudN">00</span><span class="hud-bar"><i id="hudBar"></i></span><span id="hudT">SKAÐI</span>
+      </div>
+      <div class="hint" id="hint" aria-hidden="true">Скролл</div>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <div class="wrap">
+    <p class="kick">SKAÐI/ÐCAN</p>
+    <h2>Диагностика и работа с блоками электромобилей</h2>
+    <div class="plans">
+      <article class="plan">
+        <h3>Стандарт</h3>
+        <p class="cost"><b>250 $</b> в месяц</p>
+        <p class="year">1800 $ в год <em>−40%</em></p>
+        <ul><li>Диагностика</li><li>Полная проверка ВВБ</li><li>Проверка сертификатов</li></ul>
+        <a class="btn" href="https://skadiauto.com/ru" target="_blank" rel="noopener">Купить</a>
+      </article>
+      <article class="plan">
+        <h3>Стандарт Плюс</h3>
+        <p class="cost"><b>420 $</b> в месяц</p>
+        <p class="year">2940 $ в год <em>−42%</em></p>
+        <ul><li>Диагностика</li><li>Полная проверка ВВБ</li><li>Проверка сертификатов</li><li>Прошивка блоков</li><li>Адаптация периферии</li><li>Конфигурация</li></ul>
+        <a class="btn" href="https://skadiauto.com/ru" target="_blank" rel="noopener">Купить</a>
+      </article>
+      <article class="plan hit">
+        <h3>Перформанс <em>Хит продаж</em></h3>
+        <p class="cost"><b>500 $</b> в месяц</p>
+        <p class="year">3600 $ в год <em>−40%</em></p>
+        <ul><li>Диагностика</li><li>Полная проверка ВВБ</li><li>Проверка сертификатов</li><li>Прошивка блоков</li><li>Адаптация периферии</li><li>Конфигурация</li><li>Привязка ключей</li><li>RCM, VCFront, LV Battery</li></ul>
+        <p class="only">Только при покупке на год</p>
+        <ul><li>Иммобилайзер (anti-theft)</li><li>Ключи при залоченном VCSEC</li><li>Секьюрный конфиг</li><li>Консультации в ЛС</li></ul>
+        <a class="btn" href="https://skadiauto.com/ru" target="_blank" rel="noopener">Купить</a>
+      </article>
+    </div>
+    <div class="plans two">
+      <article class="plan">
+        <p class="kick">Flasher</p>
+        <h3>Внутрисхемная работа с микросхемами Power PC и SPI</h3>
+        <p class="cost"><b>500 $</b> в год</p>
+        <ul><li>SPC / MPC по JTAG</li><li>Чтение и запись Flash</li><li>Работа с SPI Flash</li><li>Готовые пресеты для типовых задач</li><li>Ручная работа с дампами</li><li>Требуется Tigard</li></ul>
+        <a class="btn" href="https://skadiauto.com/ru" target="_blank" rel="noopener">Купить</a>
+      </article>
+      <article class="plan">
+        <p class="kick">BoardViewer</p>
+        <h3>Просмотр плат электромобилей</h3>
+        <p class="cost"><b>1000 $</b> в год</p>
+        <ul><li>Tesla</li><li>AITO</li><li>Geely</li><li>BYD</li><li>NIO</li><li>XPeng</li></ul>
+        <a class="btn" href="https://skadiauto.com/ru" target="_blank" rel="noopener">Купить</a>
+      </article>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <p class="kick">Остались вопросы?</p>
+    <h2><a href="https://t.me/skadiauto" target="_blank" rel="noopener">@skadiauto</a></h2>
+    <p class="lead">По вопросам пишите менеджеру продукта, вам ответит живой человек.</p>
+    <div class="foot-grid">
+      <div><small>Продукты</small><a href="#pricing">SKAÐI/ÐCAN</a><a href="#pricing">Flasher</a><a href="#pricing">BoardViewer</a></div>
+      <div><small>OOO AUTODEV</small><span>Телефон: <a href="tel:+9983183300">+9983183300</a></span><span>Республика Узбекистан, город Ташкент, Юнусабадский район, квартал 12, дом 20а</span><span>ИНН: 310182480</span></div>
+      <div><small>Соцсети</small><a href="https://t.me/skadiauto" target="_blank" rel="noopener">Telegram</a><a href="https://www.instagram.com/skadiauto" target="_blank" rel="noopener">Instagram</a><a href="https://www.tiktok.com/@skadiauto" target="_blank" rel="noopener">TikTok</a></div>
+    </div>
+    <p class="copy-r"><img src="assets/logo.svg" alt=""> SKAÐI <span>Uzbekistan, 2026</span></p>
+  </div>
+</footer>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>
