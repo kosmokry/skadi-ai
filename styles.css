@@ -367,3 +367,6 @@ p{margin:0}
 .foot .foot-grid{margin-top:12vh;margin-bottom:0}
 /* currency: same size and baseline as the digits, only a hair of space */
 .ccy{font-size:1em;vertical-align:baseline;margin-left:.02em;letter-spacing:0;font-weight:inherit}
+/* one grid for the whole page: lower sections use the same side gutters as the fixed header */
+.wrap{max-width:none;margin:0;padding-left:var(--pad);padding-right:var(--pad)}
+.pgrid{max-width:none}
