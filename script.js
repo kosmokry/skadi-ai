@@ -66,15 +66,38 @@
     const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('charged'); io.unobserve(e.target); } }), { threshold: .35 });
     sec.querySelectorAll('.pc').forEach(el => io.observe(el));
     const K = C.contacts, tg = `https://t.me/${esc(K.telegram)}`;
-    document.querySelector('.foot .wrap').innerHTML = `<p class="kick">${esc(K.kick)}</p>
-      <h2><a href="${tg}" target="_blank" rel="noopener">@${esc(K.telegram)}</a></h2>
-      <p class="lead">${esc(K.lead)}</p>
+    const IC = {
+      tg: '<svg viewBox="0 0 24 24"><path d="M21.5 3.6 2.9 10.8c-1 .4-1 1.8.1 2.1l4.6 1.4 1.8 5.6c.3.9 1.4 1.1 2 .4l2.6-2.6 4.6 3.4c.8.6 1.9.1 2.1-.8L23.9 5c.3-1.1-.8-2-1.9-1.6ZM9.6 14.2l8.7-7.6-6.9 9.2-.3 3.1-1.5-4.7Z"/></svg>',
+      ig: '<svg viewBox="0 0 24 24"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7Zm5 3.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Zm0 2a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5ZM17.3 5.6a1.1 1.1 0 1 1 0 2.2 1.1 1.1 0 0 1 0-2.2Z"/></svg>',
+      tt: '<svg viewBox="0 0 24 24"><path d="M14 2h3c.2 2.2 1.6 3.8 4 4v3c-1.5 0-2.9-.4-4-1.2V15a6.5 6.5 0 1 1-6.5-6.5c.3 0 .7 0 1 .1v3.1a3.5 3.5 0 1 0 2.5 3.3V2Z"/></svg>',
+      ph: '<svg viewBox="0 0 24 24"><path d="M6.6 2.8 9 5.2c.6.6.6 1.5.1 2.1L7.7 8.9a12 12 0 0 0 7.4 7.4l1.6-1.4c.6-.5 1.5-.5 2.1.1l2.4 2.4c.6.6.6 1.6 0 2.2l-1.5 1.5c-1 1-2.6 1.3-3.9.7A20 20 0 0 1 2.2 8.2c-.6-1.3-.3-2.9.7-3.9l1.5-1.5c.6-.6 1.6-.6 2.2 0Z"/></svg>'
+    };
+    const soc = [['tg', 'Telegram', tg, '@' + K.telegram], ['ig', 'Instagram', K.instagram, '@' + (String(K.instagram).split('/').filter(Boolean).pop() || '')], ['tt', 'TikTok', K.tiktok, String(K.tiktok).split('/').filter(Boolean).pop() || '']];
+    document.querySelector('.foot .wrap').innerHTML = `
+      <div class="ask">
+        <div class="ask-l">
+          <p class="kick">${esc(K.kick)}</p>
+          <h2>${(K.title || []).map(t => `<span>${esc(t)}</span>`).join('')}</h2>
+          <p class="lead">${esc(K.lead)}</p>
+        </div>
+        <article class="pc mgr">${ring}
+          <div class="mgr-top">
+            <div class="mgr-ph"><img src="${esc(K.managerPhoto)}" alt="${esc(K.managerRole)}" loading="lazy"><i class="live"></i></div>
+            <div><p class="pn">${esc(K.managerRole)}</p><p class="mgr-h">@${esc(K.telegram)}</p><p class="mgr-n"><i class="dot"></i>${esc(K.managerNote)}</p></div>
+          </div>
+          <a class="pbtn pri mgr-cta" href="${tg}" target="_blank" rel="noopener">${IC.tg}Написать в Telegram</a>
+          <ul class="soc">${soc.map(([k, n, u, h]) => `<li><a href="${esc(u)}" target="_blank" rel="noopener">${IC[k]}<span><b>${n}</b><small>${esc(h)}</small></span></a></li>`).join('')}
+            <li><a href="tel:${esc(K.phone)}">${IC.ph}<span><b>Телефон</b><small>${esc(K.phone)}</small></span></a></li></ul>
+        </article>
+      </div>
       <div class="foot-grid">
         <div><small>Продукты</small><a href="#pricing">SKAÐI/ÐCAN</a><a href="#pricing">Flasher</a><a href="#pricing">BoardViewer</a></div>
-        <div><small>${esc(K.company)}</small><span>Телефон: <a href="tel:${esc(K.phone)}">${esc(K.phone)}</a></span><span>${esc(K.address)}</span><span>ИНН: ${esc(K.inn)}</span></div>
-        <div><small>Соцсети</small><a href="${tg}" target="_blank" rel="noopener">Telegram</a><a href="${esc(K.instagram)}" target="_blank" rel="noopener">Instagram</a><a href="${esc(K.tiktok)}" target="_blank" rel="noopener">TikTok</a></div>
+        <div><small>${esc(K.company)}</small><span>${esc(K.address)}</span><span>ИНН ${esc(K.inn)}</span></div>
+        <div><small>Связь</small><a href="${tg}" target="_blank" rel="noopener">Telegram</a><a href="tel:${esc(K.phone)}">${esc(K.phone)}</a></div>
       </div>
+      <div class="mark" aria-hidden="true">SKAÐI</div>
       <p class="copy-r"><img src="assets/logo.svg" alt=""> SKAÐI <span>${esc(K.copyright)}</span></p>`;
+    document.querySelectorAll('.foot .pc').forEach(el => io.observe(el));
   } catch (e) { /* keep the static markup */ }
 
   const W = 1672, H = 941, F = .012;

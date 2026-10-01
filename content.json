@@ -256,6 +256,13 @@
     "inn": "310182480",
     "instagram": "https://www.instagram.com/skadiauto",
     "tiktok": "https://www.tiktok.com/@skadiauto",
-    "copyright": "Uzbekistan, 2026"
+    "copyright": "Uzbekistan, 2026",
+    "title": [
+      "Напишите",
+      "менеджеру"
+    ],
+    "managerRole": "Менеджер продукта",
+    "managerPhoto": "assets/manager.png",
+    "managerNote": "Ответит живой человек"
   }
 }
