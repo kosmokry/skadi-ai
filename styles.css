@@ -365,3 +365,5 @@ p{margin:0}
 .mark{margin:8vh 0;line-height:.74;padding-bottom:.02em}
 .foot .copy-r{margin-top:0;padding-top:24px;border-top:1px solid var(--line)}
 .foot .foot-grid{margin-top:12vh;margin-bottom:0}
+/* currency: same size and baseline as the digits, only a hair of space */
+.ccy{font-size:1em;vertical-align:baseline;margin-left:.02em;letter-spacing:0;font-weight:inherit}
