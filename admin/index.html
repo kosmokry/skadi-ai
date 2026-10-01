@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>SKAÐI — админка</title>
+<link rel="icon" href="../assets/logo.svg">
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07080B;--panel:#0E1016;--line:#22252E;--ink:#ECEEF2;--muted:#8A8F9A;--blue:#0043FF;--blue2:#5783FF;--ok:#3DDC97;--err:#FF5A4E;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 "Geist Mono",ui-monospace,Menlo,monospace}
+header{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:14px 24px;background:rgba(7,8,11,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+header img{width:24px}
+header b{font-weight:600}
+header .sp{flex:1}
+button,.btn{font:inherit;font-size:13px;height:36px;padding:0 16px;border-radius:99px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
+button.pri{background:var(--blue);border-color:var(--blue);color:#fff}
+button:disabled{opacity:.5;cursor:default}
+main{max-width:980px;margin:0 auto;padding:28px 24px 120px}
+#status{font-size:12px;color:var(--muted)}
+#status.ok{color:var(--ok)}#status.err{color:var(--err)}
+details{border:1px solid var(--line);border-radius:14px;background:var(--panel);margin:12px 0}
+summary{cursor:pointer;padding:14px 18px;font-weight:500;list-style:none;display:flex;gap:10px;align-items:center}
+summary::before{content:"+";color:var(--blue2);width:12px}
+details[open]>summary::before{content:"−"}
+summary small{color:var(--muted);font-weight:400}
+.body{padding:4px 18px 18px;display:grid;gap:12px}
+.grp{border-left:2px solid var(--line);padding-left:14px;display:grid;gap:12px}
+.grp>h4{margin:6px 0 0;font-size:12px;color:var(--muted);font-weight:500;text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;gap:10px}
+label{display:grid;gap:6px;font-size:12px;color:var(--muted)}
+label small{color:#5d626c}
+input[type=text],input[type=password],textarea{width:100%;font:inherit;font-size:14px;color:var(--ink);background:#0A0B10;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+textarea{resize:vertical;min-height:44px}
+input:focus,textarea:focus{outline:none;border-color:var(--blue2)}
+.chk{display:flex;align-items:center;gap:8px;color:var(--ink)}
+.x{height:26px;padding:0 10px;font-size:12px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.note{font-size:12px;color:var(--muted);line-height:1.6}
+.note a{color:var(--blue2)}
+</style>
+</head>
+<body>
+<header>
+  <img src="../assets/logo.svg" alt=""><b>SKAÐI</b><span>админка</span>
+  <span class="sp"></span>
+  <span id="status">загрузка…</span>
+  <a class="btn" href="../" target="_blank">Открыть сайт</a>
+  <button id="dl">Скачать JSON</button>
+  <button id="save" class="pri" disabled>Опубликовать</button>
+</header>
+<main>
+  <details id="gh">
+    <summary>Подключение к GitHub <small id="ghState"></small></summary>
+    <div class="body">
+      <div class="row">
+        <label>Репозиторий (владелец/имя)<input type="text" id="repo" value="kosmokry/skadi-ai"></label>
+        <label>Ветка<input type="text" id="branch" value="main"></label>
+      </div>
+      <label>Токен GitHub <small>fine-grained, только этот репозиторий, право Contents: Read and write. Хранится только в этом браузере.</small><input type="password" id="token" autocomplete="off"></label>
+      <div><button id="connect">Сохранить и загрузить</button> <button id="forget">Забыть токен</button></div>
+      <p class="note">Как получить токен: <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com → Settings → Fine-grained tokens → Generate</a>, в Repository access выбрать skadi-ai, в Permissions → Contents поставить Read and write. После публикации GitHub Pages обновляет сайт примерно за минуту.</p>
+    </div>
+  </details>
+  <div id="form"></div>
+</main>
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const LS = k => { try { return localStorage.getItem('skadi-admin-' + k); } catch { return null; } };
+  const LSset = (k, v) => { try { v == null ? localStorage.removeItem('skadi-admin-' + k) : localStorage.setItem('skadi-admin-' + k, v); } catch {} };
+  const status = (t, cls = '') => { const s = $('#status'); s.textContent = t; s.className = cls; };
+
+  const LABELS = {
+    chapters: 'Главы на скролле', pricing: 'Тарифы', contacts: 'Контакты и футер',
+    kick: 'Надзаголовок', badge: 'Плашка (например «Новинка»)', title: 'Заголовок — каждая строка с новой строки', small: 'Мелкий заголовок (для длинных фраз)',
+    lead: 'Подзаголовок', price: 'Цена', pre: 'Перед ценой', value: 'Цена', post: 'После цены', tags: 'Теги — по одному в строке',
+    link: 'Ссылка', label: 'Текст', href: 'Адрес', plans: 'Тарифы ÐCAN', products: 'Отдельные продукты',
+    name: 'Название', month: 'В месяц', year: 'В год', discount: 'Скидка', features: 'Что входит — по одному в строке',
+    yearOnly: 'Только при покупке на год — по одному в строке', buy: 'Ссылка «Купить»', period: 'Период',
+    telegram: 'Telegram (без @)', company: 'Компания', phone: 'Телефон', address: 'Адрес', inn: 'ИНН',
+    instagram: 'Instagram', tiktok: 'TikTok', copyright: 'Подпись в футере'
+  };
+  const CH_NAMES = ['Первый экран', 'ÐCAN', 'Flasher', 'BoardViewer', 'Почему', 'Для сервиса', 'Финал перед тарифами'];
+  const FIXED = new Set(['chapters']); // chapters are tied to the 3D scenes, their count is fixed
+
+  let data = null, sha = null, dirty = false;
+  const markDirty = () => { dirty = true; $('#save').disabled = false; status('есть несохранённые изменения'); };
+
+  function field(obj, key, path) {
+    const v = obj[key], lab = LABELS[key] || key;
+    if (typeof v === 'boolean') {
+      const l = document.createElement('label'); l.className = 'chk';
+      const i = document.createElement('input'); i.type = 'checkbox'; i.checked = v;
+      i.onchange = () => { obj[key] = i.checked; markDirty(); };
+      l.append(i, lab); return l;
+    }
+    if (typeof v === 'string' || (Array.isArray(v) && v.every(x => typeof x === 'string'))) {
+      const l = document.createElement('label'); l.textContent = lab;
+      const isArr = Array.isArray(v), long = isArr || v.length > 60;
+      const i = document.createElement(long ? 'textarea' : 'input');
+      if (!long) i.type = 'text';
+      i.value = isArr ? v.join('\n') : v;
+      if (long) i.rows = isArr ? Math.max(2, v.length) : 3;
+      i.oninput = () => { obj[key] = isArr ? i.value.split('\n').map(s => s.trim()).filter(Boolean) : i.value; markDirty(); };
+      l.append(i); return l;
+    }
+    if (Array.isArray(v)) return list(obj, key, path);
+    return group(v, lab, path + '.' + key);
+  }
+  function group(obj, title, path, actions) {
+    const g = document.createElement('div'); g.className = 'grp';
+    if (title) { const h = document.createElement('h4'); h.textContent = title; if (actions) h.append(actions); g.append(h); }
+    const flat = Object.keys(obj).filter(k => typeof obj[k] !== 'object' || Array.isArray(obj[k]) && obj[k].every(x => typeof x === 'string'));
+    const short = flat.filter(k => typeof obj[k] === 'string' && obj[k].length <= 60 && !['lead', 'address'].includes(k));
+    if (short.length > 1) { const r = document.createElement('div'); r.className = 'row'; short.forEach(k => r.append(field(obj, k, path))); g.append(r); }
+    Object.keys(obj).forEach(k => { if (short.length > 1 && short.includes(k)) return; g.append(field(obj, k, path)); });
+    return g;
+  }
+  function list(obj, key, path) {
+    const arr = obj[key], wrap = document.createElement('div'); wrap.className = 'grp';
+    const h = document.createElement('h4'); h.textContent = LABELS[key] || key; wrap.append(h);
+    const fixed = FIXED.has(key);
+    arr.forEach((item, i) => {
+      let act = null;
+      if (!fixed) {
+        act = document.createElement('span');
+        const up = document.createElement('button'); up.className = 'x'; up.textContent = '↑'; up.disabled = i === 0;
+        up.onclick = () => { [arr[i - 1], arr[i]] = [arr[i], arr[i - 1]]; markDirty(); build(); };
+        const del = document.createElement('button'); del.className = 'x'; del.textContent = 'Удалить';
+        del.onclick = () => { if (confirm('Удалить «' + (item.name || item.kick || i + 1) + '»?')) { arr.splice(i, 1); markDirty(); build(); } };
+        act.append(up, ' ', del);
+      }
+      const title = key === 'chapters' ? `${String(i).padStart(2, '0')} — ${CH_NAMES[i] || ''}` : (item.name || item.kick || '#' + (i + 1));
+      wrap.append(group(item, title, `${path}.${key}[${i}]`, act));
+    });
+    if (!fixed && arr.length) {
+      const add = document.createElement('button'); add.textContent = '+ Добавить';
+      add.onclick = () => { arr.push(JSON.parse(JSON.stringify(arr[arr.length - 1], (k, v) => typeof v === 'string' ? '' : Array.isArray(v) && v.every(x => typeof x === 'string') ? [] : v))); markDirty(); build(); };
+      wrap.append(add);
+    }
+    return wrap;
+  }
+  function build() {
+    const f = $('#form'); const open = [...f.querySelectorAll('details')].map(d => d.open);
+    f.innerHTML = '';
+    Object.keys(data).forEach((k, i) => {
+      const d = document.createElement('details'); d.open = open[i] ?? i === 0;
+      const s = document.createElement('summary'); s.textContent = LABELS[k] || k; d.append(s);
+      const b = document.createElement('div'); b.className = 'body';
+      b.append(Array.isArray(data[k]) ? list(data, k, '') : group(data[k], '', k));
+      d.append(b); f.append(d);
+    });
+  }
+
+  // GitHub API
+  const cfg = () => ({ repo: $('#repo').value.trim(), branch: $('#branch').value.trim() || 'main', token: $('#token').value.trim() });
+  const api = (path, opt = {}) => {
+    const { repo, token } = cfg();
+    return fetch(`https://api.github.com/repos/${repo}/contents/${path}`, { ...opt, headers: { Accept: 'application/vnd.github+json', ...(token ? { Authorization: 'Bearer ' + token } : {}), ...(opt.headers || {}) } });
+  };
+  const b64dec = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\n/g, '')), c => c.charCodeAt(0)));
+  const b64enc = s => { const b = new TextEncoder().encode(s); let r = ''; b.forEach(x => r += String.fromCharCode(x)); return btoa(r); };
+
+  async function load() {
+    status('загрузка…');
+    const { branch, token } = cfg();
+    try {
+      if (token) {
+        const r = await api(`content.json?ref=${encodeURIComponent(branch)}`);
+        if (!r.ok) throw new Error(r.status === 401 ? 'токен не подошёл' : r.status === 404 ? 'нет доступа к репозиторию или файлу' : 'GitHub ' + r.status);
+        const j = await r.json(); sha = j.sha; data = JSON.parse(b64dec(j.content));
+        $('#ghState').textContent = '— подключено'; status('загружено из GitHub', 'ok');
+      } else {
+        data = await fetch('../content.json', { cache: 'no-store' }).then(r => r.json()); sha = null;
+        $('#ghState').textContent = '— не подключено'; status('только просмотр: подключите GitHub, чтобы публиковать');
+        $('#gh').open = true;
+      }
+      dirty = false; $('#save').disabled = true; build();
+    } catch (e) { status('ошибка: ' + e.message, 'err'); if (!data) { data = await fetch('../content.json').then(r => r.json()); build(); } }
+  }
+  async function save() {
+    const { branch, token } = cfg();
+    if (!token) { $('#gh').open = true; status('нужен токен GitHub', 'err'); return; }
+    $('#save').disabled = true; status('публикация…');
+    try {
+      const body = { message: 'Content: update via admin', content: b64enc(JSON.stringify(data, null, 2) + '\n'), branch, ...(sha ? { sha } : {}) };
+      const r = await api('content.json', { method: 'PUT', body: JSON.stringify(body) });
+      if (r.status === 409) throw new Error('файл изменился в репозитории, перезагрузите страницу');
+      if (!r.ok) throw new Error((await r.json()).message || 'GitHub ' + r.status);
+      sha = (await r.json()).content.sha; dirty = false;
+      status('опубликовано, сайт обновится примерно через минуту', 'ok');
+    } catch (e) { status('ошибка: ' + e.message, 'err'); $('#save').disabled = false; }
+  }
+
+  ['repo', 'branch', 'token'].forEach(k => { const v = LS(k); if (v) $('#' + k).value = v; });
+  $('#connect').onclick = () => { ['repo', 'branch', 'token'].forEach(k => LSset(k, $('#' + k).value.trim())); $('#gh').open = false; load(); };
+  $('#forget').onclick = () => { LSset('token', null); $('#token').value = ''; load(); };
+  $('#save').onclick = save;
+  $('#dl').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); a.download = 'content.json'; a.click(); };
+  addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+  load();
+})();
+</script>
+</body>
+</html>

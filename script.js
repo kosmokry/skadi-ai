@@ -1,4 +1,49 @@
-(() => {
+(async () => {
+  /* ---------- content from content.json (edited in /admin) ---------- */
+  const esc = v => String(v ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const ext = h => /^https?:/.test(h) ? ' target="_blank" rel="noopener"' : '';
+  try {
+    const C = await fetch('content.json', { cache: 'no-store' }).then(r => r.json());
+    const last = C.chapters.length - 1;
+    document.querySelector('.copy').innerHTML = C.chapters.map((c, i) => {
+      const tag = i === 0 ? 'h1' : 'h2';
+      const pr = c.price || {};
+      const glass = (c.lead || pr.value || (c.tags || []).length || c.link?.label) ? `<div class="glass">
+        ${c.lead ? `<p class="lead">${esc(c.lead)}</p>` : ''}
+        ${pr.value ? `<p class="price">${esc(pr.pre)} <b>${esc(pr.value)}</b> ${esc(pr.post)}</p>` : ''}
+        ${(c.tags || []).length ? `<p class="tags">${c.tags.map(t => `<span>${esc(t)}</span>`).join('')}</p>` : ''}
+        ${c.link?.label ? `<a class="more" href="${esc(c.link.href)}"${ext(c.link.href)}>${esc(c.link.label)}</a>` : ''}
+      </div>` : '';
+      return `<article class="blk${i === 0 ? ' hero' : ''}${i === last ? ' outro' : ''}" data-ch="${i}">
+        <p class="kick">${esc(c.kick)}${c.badge ? ` <em>${esc(c.badge)}</em>` : ''}</p>
+        <${tag}${c.small ? ' class="h-long"' : ''}>${c.title.map(t => `<span>${esc(t)}</span>`).join('')}</${tag}>${glass}</article>`;
+    }).join('');
+    const P = C.pricing, li = a => a.map(x => `<li>${esc(x)}</li>`).join('');
+    const buy = u => `<a class="btn" href="${esc(u)}"${ext(u)}>Купить</a>`;
+    document.querySelector('.pricing .wrap').innerHTML = `<p class="kick">${esc(P.kick)}</p><h2>${esc(P.title)}</h2>
+      <div class="plans">${P.plans.map(p => `<article class="plan${p.badge ? ' hit' : ''}">
+        <h3>${esc(p.name)}${p.badge ? ` <em>${esc(p.badge)}</em>` : ''}</h3>
+        <p class="cost"><b>${esc(p.month)}</b> в месяц</p>
+        <p class="year">${esc(p.year)} в год ${p.discount ? `<em>${esc(p.discount)}</em>` : ''}</p>
+        <ul>${li(p.features)}</ul>
+        ${(p.yearOnly || []).length ? `<p class="only">Только при покупке на год</p><ul>${li(p.yearOnly)}</ul>` : ''}
+        ${buy(p.buy)}</article>`).join('')}</div>
+      <div class="plans two">${P.products.map(p => `<article class="plan">
+        <p class="kick">${esc(p.kick)}</p><h3>${esc(p.name)}</h3>
+        <p class="cost"><b>${esc(p.price)}</b> ${esc(p.period)}</p>
+        <ul>${li(p.features)}</ul>${buy(p.buy)}</article>`).join('')}</div>`;
+    const K = C.contacts, tg = `https://t.me/${esc(K.telegram)}`;
+    document.querySelector('.foot .wrap').innerHTML = `<p class="kick">${esc(K.kick)}</p>
+      <h2><a href="${tg}" target="_blank" rel="noopener">@${esc(K.telegram)}</a></h2>
+      <p class="lead">${esc(K.lead)}</p>
+      <div class="foot-grid">
+        <div><small>Продукты</small><a href="#pricing">SKAÐI/ÐCAN</a><a href="#pricing">Flasher</a><a href="#pricing">BoardViewer</a></div>
+        <div><small>${esc(K.company)}</small><span>Телефон: <a href="tel:${esc(K.phone)}">${esc(K.phone)}</a></span><span>${esc(K.address)}</span><span>ИНН: ${esc(K.inn)}</span></div>
+        <div><small>Соцсети</small><a href="${tg}" target="_blank" rel="noopener">Telegram</a><a href="${esc(K.instagram)}" target="_blank" rel="noopener">Instagram</a><a href="${esc(K.tiktok)}" target="_blank" rel="noopener">TikTok</a></div>
+      </div>
+      <p class="copy-r"><img src="assets/logo.svg" alt=""> SKAÐI <span>${esc(K.copyright)}</span></p>`;
+  } catch (e) { /* keep the static markup */ }
+
   const W = 1672, H = 941, F = .012;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const $ = (s, r = document) => r.querySelector(s);
