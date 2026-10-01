@@ -225,7 +225,8 @@
           "Ручная работа с дампами",
           "Требуется Tigard"
         ],
-        "buy": "https://skadiauto.com/ru"
+        "buy": "https://skadiauto.com/ru",
+        "img": "assets/p-flasher.jpg"
       },
       {
         "kick": "BoardViewer",
@@ -240,7 +241,8 @@
           "NIO",
           "XPeng"
         ],
-        "buy": "https://skadiauto.com/ru"
+        "buy": "https://skadiauto.com/ru",
+        "img": "assets/p-board.jpg"
       }
     ]
   },

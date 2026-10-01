@@ -227,3 +227,107 @@ p{margin:0}
 @media (prefers-reduced-motion:reduce){
   .blk>*,.blk h1 span,.blk h2 span{transition:none}
 }
+
+/* ---------- pricing: dark glass cards with EV charging contour ---------- */
+@property --f{syntax:'<percentage>';inherits:false;initial-value:0%}
+@property --a{syntax:'<angle>';inherits:false;initial-value:0deg}
+.pricing{position:relative;overflow:hidden;background:radial-gradient(80% 50% at 50% 0,rgba(0,67,255,.16),transparent 70%),var(--bg)}
+.p-head{display:flex;align-items:flex-end;justify-content:space-between;gap:32px;flex-wrap:wrap;margin-bottom:48px}
+.p-head h2{margin:0;max-width:14em;font-size:clamp(34px,4.4vw,72px);line-height:.9;letter-spacing:-.055em}
+.period{display:flex;padding:4px;border-radius:99px;border:1px solid var(--line);background:rgba(255,255,255,.03)}
+.period button{font:inherit;font-size:13px;height:38px;padding:0 18px;border:0;border-radius:99px;background:none;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .3s,color .3s}
+.period button[aria-pressed=true]{background:var(--ink);color:#0A0B0E}
+.period em{font-style:normal;font-size:11px;color:var(--ok)}
+.period button[aria-pressed=true] em{color:#0a7a52}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
+.pgrid.two{grid-template-columns:repeat(2,1fr);margin-top:20px}
+.pc{--c1:#57f0d8;--c2:#5783ff;position:relative;isolation:isolate;border-radius:24px;padding:28px 26px 26px;display:flex;flex-direction:column;
+  background:linear-gradient(180deg,#161a26,#090a0e);box-shadow:inset 0 0 0 1px rgba(255,255,255,.07)}
+.pc>i{position:absolute;inset:0;border-radius:inherit;pointer-events:none}
+/* 1 — contour fills around the card like a charge-port ring */
+.pc .ring{padding:1.5px;background:conic-gradient(from 200deg,var(--c1),var(--c2) var(--f),transparent var(--f));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);opacity:.9}
+/* 2 — a pulse keeps running along the edge */
+.pc .trace{padding:1.5px;background:conic-gradient(from var(--a),transparent 0 76%,var(--c1) 88%,#fff 91%,var(--c2) 94%,transparent 100%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);opacity:0}
+/* 3 — neon glow around and a light pool under the card */
+.pc .halo{inset:-26px;border-radius:50px;opacity:0;
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);padding:25px}
+.pc .halo::before{content:"";position:absolute;inset:18px;border-radius:30px;background:conic-gradient(from var(--a),transparent 0 70%,var(--c1) 88%,var(--c2) 96%,transparent);filter:blur(14px)}
+.pc.charged .halo::before{animation:trace 3.4s linear calc(var(--d) + 1.2s) infinite}
+.pc:hover .halo::before{animation-duration:1.6s}
+.pc::after{content:"";position:absolute;left:10%;right:10%;bottom:-30px;height:60px;z-index:-2;background:radial-gradient(closest-side,rgba(87,240,216,.35),transparent);opacity:0;transition:opacity 1.2s}
+.pc.charged .ring{animation:charge 1.6s cubic-bezier(.5,0,.2,1) var(--d) forwards,breathe 3.6s ease-in-out calc(var(--d) + 1.6s) infinite}
+.pc.charged .trace{animation:trace 3.4s linear calc(var(--d) + 1.2s) infinite,fadein .6s calc(var(--d) + 1.2s) forwards}
+.pc.charged .halo{animation:glow .8s calc(var(--d) + 1.2s) forwards}
+.pc.charged::after{opacity:.5;transition-delay:calc(var(--d) + 1s)}
+.pc:not(.hit) .halo{--glow:.35}
+.pc.hit{--c1:#7cf7e4;--c2:#3d6bff;background:linear-gradient(180deg,#0e1a40,#080a12)}
+.pc.hit::after{background:radial-gradient(closest-side,rgba(61,107,255,.6),transparent)}
+.pc.hit.charged::after{opacity:1}
+.pc:hover .trace{animation-duration:1.6s,.6s}
+@keyframes charge{to{--f:100%}}
+@keyframes trace{to{--a:360deg}}
+@keyframes fadein{to{opacity:1}}
+@keyframes glow{to{opacity:var(--glow,.7)}}
+@keyframes breathe{50%{opacity:.45}}
+
+.pc header{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.pn{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.pc h3{margin:0;font-size:20px;letter-spacing:-.03em;font-weight:500}
+.pb{margin-left:auto;font-style:normal;font-size:11px;padding:4px 10px;border-radius:99px;background:linear-gradient(90deg,#57f0d8,#3d6bff);color:#04060c;font-weight:600}
+.pp{display:flex;align-items:baseline;gap:10px;color:var(--muted);font-size:13px}
+.pp b{font-weight:300;font-size:clamp(46px,4.4vw,68px);letter-spacing:-.07em;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.psave{margin-top:8px;font-size:12px;color:var(--muted);min-height:1.4em}
+.yearly .psave{color:var(--ok)}
+.pbtn{display:flex;align-items:center;justify-content:center;height:46px;margin:24px 0 26px;border-radius:14px;text-decoration:none;font-size:14px;font-weight:500;color:var(--ink);background:rgba(255,255,255,.06);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);transition:background .25s,box-shadow .25s}
+.pbtn:hover{background:rgba(87,240,216,.12);box-shadow:inset 0 0 0 1px rgba(87,240,216,.5)}
+.pbtn.pri{background:linear-gradient(90deg,#3d6bff,#2a52ff);box-shadow:0 10px 30px rgba(61,107,255,.35);color:#fff}
+.pbtn.pri:hover{background:linear-gradient(90deg,#57f0d8,#3d6bff);color:#04060c}
+.pf{list-style:none;margin:0;padding:0;font-size:13px;border-top:1px solid rgba(255,255,255,.08)}
+.pf li{display:flex;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06);color:#D5D8DE}
+.pf li span{font-size:11px;color:var(--c1);min-width:18px;padding-top:2px}
+.pf li.n{color:#4a4f5a;text-decoration:line-through;text-decoration-color:rgba(255,255,255,.15)}
+.pf li.n span{color:#3a3e47}
+.pf li.yo::after{content:"◆";margin-left:auto;font-size:9px;color:var(--c2);padding-top:3px}
+.pf li.n.yo::after{color:#3a3e47}
+.pnote{margin-top:14px;font-size:11px;color:var(--muted)}
+.pnote{color:#6f7fb8}
+
+.pc.prod{padding:0;overflow:visible}
+.pimg{position:relative;aspect-ratio:16/7;border-radius:24px 24px 0 0;overflow:hidden;margin:1.5px 1.5px 0}
+.pimg img{width:100%;height:100%;object-fit:cover;filter:saturate(.85) brightness(.85);transition:transform 1.2s cubic-bezier(.2,.7,.2,1)}
+.pimg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(10,12,18,.95))}
+.pc.prod:hover .pimg img{transform:scale(1.04)}
+.pbody{padding:6px 26px 26px;display:flex;flex-direction:column}
+.pbody header{margin-bottom:10px}
+.pbody h3{font-size:19px;max-width:20em}
+.pbody .pp{margin-top:18px}
+.ptags{list-style:none;margin:18px 0 0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.ptags li{font-size:12px;padding:5px 10px;border-radius:99px;background:rgba(255,255,255,.04);box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);color:#C9CCD2}
+.pbody .pbtn{margin:22px 0 0}
+
+@media (max-width:980px){.pgrid{grid-template-columns:1fr;max-width:520px}.pgrid.two{grid-template-columns:1fr}.p-head{align-items:flex-start}}
+@media (prefers-reduced-motion:reduce){.pc.charged .ring{animation:none;--f:100%}.pc.charged .trace,.pc.charged .halo{animation:none;opacity:.5}}
+
+/* ---------- round 3 ---------- */
+.ccy{font-style:normal;margin-left:.04em;font-size:.62em;letter-spacing:0;vertical-align:.32em}
+.blk h1,.blk h2{line-height:.84}
+.blk h1 span,.blk h2 span{padding-bottom:0}
+/* consistent 4px radius on plates and buttons */
+.btn,.btn.ghost,.glass,.tags span,.kick em,.period,.period button,.pb,.pbtn,.ptags li,.more{border-radius:4px}
+.pc,.pimg{border-radius:4px}
+.pimg{border-radius:4px 4px 0 0}
+.pc .halo{border-radius:28px}.pc .halo::before{border-radius:8px}
+/* hud readable on bright plates */
+.hud{color:#E8EBF0;text-shadow:0 1px 8px rgba(0,0,0,.65)}
+.hud-bar{height:2px;background:rgba(255,255,255,.35);box-shadow:0 1px 6px rgba(0,0,0,.5)}
+.hud-bar i{background:#fff}
+/* product cards: equal rhythm, button pinned to the bottom */
+.pgrid.two .pc.prod{display:flex;flex-direction:column}
+.pbody{flex:1}
+.pbody h3{min-height:2.6em}
+.ptags{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.ptags li{display:flex;align-items:center;justify-content:center;text-align:center;min-height:40px;padding:6px 8px;line-height:1.25}
+.pbody .pbtn{margin-top:auto}
+.pbody .ptags{margin-bottom:24px}

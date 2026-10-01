@@ -1,6 +1,8 @@
 (async () => {
   /* ---------- content from content.json (edited in /admin) ---------- */
   const esc = v => String(v ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  // "250 $" -> 250 with a tight currency sign
+  const money = v => { const m = String(v ?? '').match(/^(.*?)\s*([$€₽]|USD|руб\.?)$/); return m ? `${esc(m[1])}<i class="ccy">${esc(m[2])}</i>` : esc(v); };
   const ext = h => /^https?:/.test(h) ? ' target="_blank" rel="noopener"' : '';
   try {
     const C = await fetch('content.json', { cache: 'no-store' }).then(r => r.json());
@@ -10,7 +12,7 @@
       const pr = c.price || {};
       const glass = (c.lead || pr.value || (c.tags || []).length || c.link?.label) ? `<div class="glass">
         ${c.lead ? `<p class="lead">${esc(c.lead)}</p>` : ''}
-        ${pr.value ? `<p class="price">${esc(pr.pre)} <b>${esc(pr.value)}</b> ${esc(pr.post)}</p>` : ''}
+        ${pr.value ? `<p class="price">${esc(pr.pre)} <b>${money(pr.value)}</b> ${esc(pr.post)}</p>` : ''}
         ${(c.tags || []).length ? `<p class="tags">${c.tags.map(t => `<span>${esc(t)}</span>`).join('')}</p>` : ''}
         ${c.link?.label ? `<a class="more" href="${esc(c.link.href)}"${ext(c.link.href)}>${esc(c.link.label)}</a>` : ''}
       </div>` : '';
@@ -18,20 +20,51 @@
         <p class="kick">${esc(c.kick)}${c.badge ? ` <em>${esc(c.badge)}</em>` : ''}</p>
         <${tag}${c.small ? ' class="h-long"' : ''}>${c.title.map(t => `<span>${esc(t)}</span>`).join('')}</${tag}>${glass}</article>`;
     }).join('');
-    const P = C.pricing, li = a => a.map(x => `<li>${esc(x)}</li>`).join('');
-    const buy = u => `<a class="btn" href="${esc(u)}"${ext(u)}>Купить</a>`;
-    document.querySelector('.pricing .wrap').innerHTML = `<p class="kick">${esc(P.kick)}</p><h2>${esc(P.title)}</h2>
-      <div class="plans">${P.plans.map(p => `<article class="plan${p.badge ? ' hit' : ''}">
-        <h3>${esc(p.name)}${p.badge ? ` <em>${esc(p.badge)}</em>` : ''}</h3>
-        <p class="cost"><b>${esc(p.month)}</b> в месяц</p>
-        <p class="year">${esc(p.year)} в год ${p.discount ? `<em>${esc(p.discount)}</em>` : ''}</p>
-        <ul>${li(p.features)}</ul>
-        ${(p.yearOnly || []).length ? `<p class="only">Только при покупке на год</p><ul>${li(p.yearOnly)}</ul>` : ''}
-        ${buy(p.buy)}</article>`).join('')}</div>
-      <div class="plans two">${P.products.map(p => `<article class="plan">
-        <p class="kick">${esc(p.kick)}</p><h3>${esc(p.name)}</h3>
-        <p class="cost"><b>${esc(p.price)}</b> ${esc(p.period)}</p>
-        <ul>${li(p.features)}</ul>${buy(p.buy)}</article>`).join('')}</div>`;
+    const P = C.pricing;
+    const buy = (u, cls = '') => `<a class="pbtn${cls}" href="${esc(u)}"${ext(u)}>Купить</a>`;
+    // one shared feature list: every plan shows all rows, missing ones are dimmed, so the difference reads at a glance
+    const all = [];
+    P.plans.forEach(p => [...p.features, ...(p.yearOnly || [])].forEach(f => { if (!all.includes(f)) all.push(f); }));
+    const yearOnlyAll = new Set(P.plans.flatMap(p => p.yearOnly || []));
+    const ring = '<i class="ring"></i><i class="trace"></i><i class="halo"></i>';
+    document.querySelector('.pricing .wrap').innerHTML = `
+      <div class="p-head">
+        <div><p class="kick">${esc(P.kick)}</p><h2>${esc(P.title)}</h2></div>
+        <div class="period" role="group" aria-label="Период оплаты">
+          <button type="button" data-per="month" aria-pressed="true">В месяц</button>
+          <button type="button" data-per="year" aria-pressed="false">В год <em>до ${esc(P.plans.map(p => p.discount).filter(Boolean).sort().pop() || '')}</em></button>
+        </div>
+      </div>
+      <div class="pgrid">${P.plans.map((p, i) => {
+        const own = new Set([...p.features, ...(p.yearOnly || [])]);
+        return `<article class="pc${p.badge ? ' hit' : ''}" style="--d:${i * .18}s">${ring}
+          <header><span class="pn">0${i + 1}</span><h3>${esc(p.name)}</h3>${p.badge ? `<em class="pb">${esc(p.badge)}</em>` : ''}</header>
+          <p class="pp"><b data-month="${esc(p.month)}" data-year="${esc(p.year)}">${money(p.month)}</b><span data-month="в месяц" data-year="в год">в месяц</span></p>
+          <p class="psave" data-month="${esc(p.year)} при оплате за год" data-year="экономия ${esc(p.discount)}">${esc(p.year)} при оплате за год</p>
+          ${buy(p.buy, p.badge ? ' pri' : '')}
+          <ol class="pf">${all.map((f, k) => `<li class="${own.has(f) ? 'y' : 'n'}${yearOnlyAll.has(f) ? ' yo' : ''}"><span>${String(k + 1).padStart(2, '0')}</span>${esc(f)}</li>`).join('')}</ol>
+          ${yearOnlyAll.size ? '<p class="pnote">◆ только при покупке на год</p>' : ''}
+        </article>`;
+      }).join('')}</div>
+      <div class="pgrid two">${P.products.map((p, i) => `<article class="pc prod" style="--d:${.5 + i * .18}s">${ring}
+        ${p.img ? `<div class="pimg"><img src="${esc(p.img)}" alt="" loading="lazy"></div>` : ''}
+        <div class="pbody">
+          <header><span class="pn">${esc(p.kick)}</span></header>
+          <h3>${esc(p.name)}</h3>
+          <p class="pp"><b>${money(p.price)}</b><span>${esc(p.period)}</span></p>
+          <ul class="ptags">${p.features.map(f => `<li>${esc(f)}</li>`).join('')}</ul>
+          ${buy(p.buy)}
+        </div></article>`).join('')}</div>`;
+    const sec = document.querySelector('.pricing');
+    sec.querySelectorAll('.period button').forEach(b => b.onclick = () => {
+      const per = b.dataset.per;
+      sec.querySelectorAll('.period button').forEach(x => x.setAttribute('aria-pressed', x === b));
+      sec.querySelectorAll('[data-month]').forEach(el => el.tagName === 'B' ? el.innerHTML = money(el.dataset[per]) : el.textContent = el.dataset[per]);
+      sec.classList.toggle('yearly', per === 'year');
+    });
+    // "plug in": contour charges when a card comes into view
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('charged'); io.unobserve(e.target); } }), { threshold: .35 });
+    sec.querySelectorAll('.pc').forEach(el => io.observe(el));
     const K = C.contacts, tg = `https://t.me/${esc(K.telegram)}`;
     document.querySelector('.foot .wrap').innerHTML = `<p class="kick">${esc(K.kick)}</p>
       <h2><a href="${tg}" target="_blank" rel="noopener">@${esc(K.telegram)}</a></h2>
@@ -94,8 +127,8 @@
     bg5c: { fx: .5,  fxm: .55, fy: .5 },
   };
   const TYPES = {
-    mxw:  { nw: 1554, nh: 550, wheels: [[266.2, 422.4, 100], [1233.5, 413.1, 104]] },
-    mxb:  { nw: 1559, nh: 559, wheels: [[269.5, 433.5, 100], [1246.5, 426.6, 102]] },
+    mxw:  { nw: 1554, nh: 550, wheels: [[264.7, 426.4, 98], [1234.5, 427.6, 98]] },
+    mxb:  { nw: 1559, nh: 559, wheels: [[269.5, 430.5, 98], [1247.5, 432.6, 98]] },
     car1: { nw: 1567, nh: 493, wheels: [[272.5, 368, 100], [1245, 368, 100]] },
     car2: { nw: 1511, nh: 549, wheels: [[273.5, 424, 100], [1217, 424, 100]] },
     car3: { nw: 1551, nh: 562, wheels: [[267.8, 431, 106], [1287.2, 431, 106]], head: [100, 275], tail: [1465, 222], port: [1330, 262] },
