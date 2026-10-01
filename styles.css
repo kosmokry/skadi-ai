@@ -359,3 +359,9 @@ p{margin:0}
 .mark{font-weight:500;font-size:24vw;line-height:.75;letter-spacing:-.08em;text-align:center;margin:8vh 0 0;color:transparent;-webkit-text-stroke:1px rgba(87,131,255,.28);background:linear-gradient(180deg,rgba(87,131,255,.22),transparent 80%);-webkit-background-clip:text;background-clip:text;user-select:none}
 .foot .copy-r{margin-top:-2vw;position:relative}
 @media (max-width:900px){.ask{grid-template-columns:1fr}.ask h2{font-size:clamp(40px,13vw,72px)}.soc{grid-template-columns:1fr}}
+/* contacts: top-aligned columns, even air around the big wordmark */
+.ask{align-items:start}
+.ask-l{padding-top:6px}
+.mark{margin:8vh 0;line-height:.74;padding-bottom:.02em}
+.foot .copy-r{margin-top:0;padding-top:24px;border-top:1px solid var(--line)}
+.foot .foot-grid{margin-top:12vh;margin-bottom:0}
