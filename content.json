@@ -1,43 +1,247 @@
 {
   "chapters": [
-    { "kick": "CAN · LAN · JTAG · SPI", "badge": "", "title": ["Софт", "для EV", "сервисов"], "small": false,
+    {
+      "kick": "CAN · LAN · JTAG · SPI",
+      "badge": "",
+      "title": [
+        "Софт для EV",
+        "сервисов"
+      ],
+      "small": false,
       "lead": "SKAÐI — набор инженерных инструментов: диагностика и конфигурация, программирование микросхем, просмотр плат.",
-      "price": { "pre": "", "value": "", "post": "" }, "tags": [], "link": { "label": "Наши программы", "href": "#pricing" } },
-    { "kick": "01 / SKAÐI/ÐCAN", "badge": "", "title": ["Диагностика", "и работа", "с блоками"], "small": false,
+      "price": {
+        "pre": "",
+        "value": "",
+        "post": ""
+      },
+      "tags": [],
+      "link": {
+        "label": "Наши программы",
+        "href": "#pricing"
+      }
+    },
+    {
+      "kick": "01 / SKAÐI/ÐCAN",
+      "badge": "",
+      "title": [
+        "Диагностика",
+        "и работа",
+        "с блоками"
+      ],
+      "small": false,
       "lead": "Полная поддержка Tesla. Отдельные функции — для Xiaomi и Lucid.",
-      "price": { "pre": "от", "value": "250 $", "post": "в месяц" }, "tags": [], "link": { "label": "Тарифы", "href": "#pricing" } },
-    { "kick": "02 / Flasher", "badge": "Новинка", "title": ["Внутрисхемная", "работа", "с микросхемами"], "small": false,
+      "price": {
+        "pre": "от",
+        "value": "250 $",
+        "post": "в месяц"
+      },
+      "tags": [],
+      "link": {
+        "label": "Тарифы",
+        "href": "#pricing"
+      }
+    },
+    {
+      "kick": "02 / Flasher",
+      "badge": "Новинка",
+      "title": [
+        "Внутрисхемная",
+        "работа",
+        "с микросхемами"
+      ],
+      "small": false,
       "lead": "Чтение и запись микроконтроллеров SPC / MPC по JTAG, работа с SPI Flash. Требуется Tigard — заменяет P&E Micro.",
-      "price": { "pre": "", "value": "500 $", "post": "в год" }, "tags": [], "link": { "label": "Купить", "href": "#pricing" } },
-    { "kick": "03 / BoardViewer", "badge": "Новинка", "title": ["Смотрим платы", "Tesla, Geely, BYD"], "small": false,
+      "price": {
+        "pre": "",
+        "value": "500 $",
+        "post": "в год"
+      },
+      "tags": [],
+      "link": {
+        "label": "Купить",
+        "href": "#pricing"
+      }
+    },
+    {
+      "kick": "03 / BoardViewer",
+      "badge": "Новинка",
+      "title": [
+        "Смотрим платы",
+        "Tesla, Geely, BYD"
+      ],
+      "small": false,
       "lead": "Сканы плат в высоком разрешении: прослеживайте дорожки от края до края и сравнивайте схему с реальными фото, чтобы быстро находить компоненты и повреждения.",
-      "price": { "pre": "", "value": "", "post": "" }, "tags": ["Tesla", "AITO", "Geely", "BYD", "NIO", "XPeng"], "link": { "label": "Купить", "href": "#pricing" } },
-    { "kick": "04 / Почему SKAÐIAUTO", "badge": "", "title": ["Автоматизацию", "работы", "мы берём на себя"], "small": false,
+      "price": {
+        "pre": "",
+        "value": "",
+        "post": ""
+      },
+      "tags": [
+        "Tesla",
+        "AITO",
+        "Geely",
+        "BYD",
+        "NIO",
+        "XPeng"
+      ],
+      "link": {
+        "label": "Купить",
+        "href": "#pricing"
+      }
+    },
+    {
+      "kick": "04 / Почему SKAÐIAUTO",
+      "badge": "",
+      "title": [
+        "Автоматизацию",
+        "работы",
+        "мы берём на себя"
+      ],
+      "small": false,
       "lead": "Вам не нужно делать всё вручную — для типовых процедур мы создали кнопки.",
-      "price": { "pre": "", "value": "", "post": "" }, "tags": [], "link": { "label": "Тарифы", "href": "#pricing" } },
-    { "kick": "05 / Наш софт", "badge": "", "title": ["Для профессионального", "сервиса"], "small": true,
+      "price": {
+        "pre": "",
+        "value": "",
+        "post": ""
+      },
+      "tags": [],
+      "link": {
+        "label": "Тарифы",
+        "href": "#pricing"
+      }
+    },
+    {
+      "kick": "05 / Наш софт",
+      "badge": "",
+      "title": [
+        "Для профессионального",
+        "сервиса"
+      ],
+      "small": true,
       "lead": "Работа с современными EV требует специальных навыков. Владеете базой? Получите boost с продуктами SKAÐI.",
-      "price": { "pre": "", "value": "", "post": "" }, "tags": [], "link": { "label": "Написать менеджеру", "href": "https://t.me/skadiauto" } },
-    { "kick": "Тарифы и покупка", "badge": "", "title": ["Выберите", "свой набор"], "small": false,
-      "lead": "", "price": { "pre": "", "value": "", "post": "" }, "tags": [], "link": { "label": "", "href": "" } }
+      "price": {
+        "pre": "",
+        "value": "",
+        "post": ""
+      },
+      "tags": [],
+      "link": {
+        "label": "Написать менеджеру",
+        "href": "https://t.me/skadiauto"
+      }
+    },
+    {
+      "kick": "Тарифы и покупка",
+      "badge": "",
+      "title": [
+        "Выберите",
+        "свой набор"
+      ],
+      "small": false,
+      "lead": "",
+      "price": {
+        "pre": "",
+        "value": "",
+        "post": ""
+      },
+      "tags": [],
+      "link": {
+        "label": "",
+        "href": ""
+      }
+    }
   ],
   "pricing": {
     "kick": "SKAÐI/ÐCAN",
     "title": "Диагностика и работа с блоками электромобилей",
     "plans": [
-      { "name": "Стандарт", "badge": "", "month": "250 $", "year": "1800 $", "discount": "−40%",
-        "features": ["Диагностика", "Полная проверка ВВБ", "Проверка сертификатов"], "yearOnly": [], "buy": "https://skadiauto.com/ru" },
-      { "name": "Стандарт Плюс", "badge": "", "month": "420 $", "year": "2940 $", "discount": "−42%",
-        "features": ["Диагностика", "Полная проверка ВВБ", "Проверка сертификатов", "Прошивка блоков", "Адаптация периферии", "Конфигурация"], "yearOnly": [], "buy": "https://skadiauto.com/ru" },
-      { "name": "Перформанс", "badge": "Хит продаж", "month": "500 $", "year": "3600 $", "discount": "−40%",
-        "features": ["Диагностика", "Полная проверка ВВБ", "Проверка сертификатов", "Прошивка блоков", "Адаптация периферии", "Конфигурация", "Привязка ключей", "RCM, VCFront, LV Battery"],
-        "yearOnly": ["Иммобилайзер (anti-theft)", "Ключи при залоченном VCSEC", "Секьюрный конфиг", "Консультации в ЛС"], "buy": "https://skadiauto.com/ru" }
+      {
+        "name": "Стандарт",
+        "badge": "",
+        "month": "250 $",
+        "year": "1800 $",
+        "discount": "−40%",
+        "features": [
+          "Диагностика",
+          "Полная проверка ВВБ",
+          "Проверка сертификатов"
+        ],
+        "yearOnly": [],
+        "buy": "https://skadiauto.com/ru"
+      },
+      {
+        "name": "Стандарт Плюс",
+        "badge": "",
+        "month": "420 $",
+        "year": "2940 $",
+        "discount": "−42%",
+        "features": [
+          "Диагностика",
+          "Полная проверка ВВБ",
+          "Проверка сертификатов",
+          "Прошивка блоков",
+          "Адаптация периферии",
+          "Конфигурация"
+        ],
+        "yearOnly": [],
+        "buy": "https://skadiauto.com/ru"
+      },
+      {
+        "name": "Перформанс",
+        "badge": "Хит продаж",
+        "month": "500 $",
+        "year": "3600 $",
+        "discount": "−40%",
+        "features": [
+          "Диагностика",
+          "Полная проверка ВВБ",
+          "Проверка сертификатов",
+          "Прошивка блоков",
+          "Адаптация периферии",
+          "Конфигурация",
+          "Привязка ключей",
+          "RCM, VCFront, LV Battery"
+        ],
+        "yearOnly": [
+          "Иммобилайзер (anti-theft)",
+          "Ключи при залоченном VCSEC",
+          "Секьюрный конфиг",
+          "Консультации в ЛС"
+        ],
+        "buy": "https://skadiauto.com/ru"
+      }
     ],
     "products": [
-      { "kick": "Flasher", "name": "Внутрисхемная работа с микросхемами Power PC и SPI", "price": "500 $", "period": "в год",
-        "features": ["SPC / MPC по JTAG", "Чтение и запись Flash", "Работа с SPI Flash", "Готовые пресеты для типовых задач", "Ручная работа с дампами", "Требуется Tigard"], "buy": "https://skadiauto.com/ru" },
-      { "kick": "BoardViewer", "name": "Просмотр плат электромобилей", "price": "1000 $", "period": "в год",
-        "features": ["Tesla", "AITO", "Geely", "BYD", "NIO", "XPeng"], "buy": "https://skadiauto.com/ru" }
+      {
+        "kick": "Flasher",
+        "name": "Внутрисхемная работа с микросхемами Power PC и SPI",
+        "price": "500 $",
+        "period": "в год",
+        "features": [
+          "SPC / MPC по JTAG",
+          "Чтение и запись Flash",
+          "Работа с SPI Flash",
+          "Готовые пресеты для типовых задач",
+          "Ручная работа с дампами",
+          "Требуется Tigard"
+        ],
+        "buy": "https://skadiauto.com/ru"
+      },
+      {
+        "kick": "BoardViewer",
+        "name": "Просмотр плат электромобилей",
+        "price": "1000 $",
+        "period": "в год",
+        "features": [
+          "Tesla",
+          "AITO",
+          "Geely",
+          "BYD",
+          "NIO",
+          "XPeng"
+        ],
+        "buy": "https://skadiauto.com/ru"
+      }
     ]
   },
   "contacts": {
