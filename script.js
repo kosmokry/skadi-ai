@@ -10,8 +10,9 @@
     document.querySelector('.copy').innerHTML = C.chapters.map((c, i) => {
       const tag = i === 0 ? 'h1' : 'h2';
       const pr = c.price || {};
-      const glass = (c.lead || pr.value || (c.tags || []).length || c.link?.label) ? `<div class="glass">
+      const glass = (c.lead || (c.items || []).length || pr.value || (c.tags || []).length || c.link?.label) ? `<div class="glass">
         ${c.lead ? `<p class="lead">${esc(c.lead)}</p>` : ''}
+        ${(c.items || []).length ? `<ol class="prog">${c.items.map((it, k) => `<li><span>0${k + 1}</span><b>${esc(it.name)}${it.badge ? ` <em>${esc(it.badge)}</em>` : ''}</b><small>${esc(it.text)}</small></li>`).join('')}</ol>` : ''}
         ${pr.value ? `<p class="price">${esc(pr.pre)} <b>${money(pr.value)}</b> ${esc(pr.post)}</p>` : ''}
         ${(c.tags || []).length ? `<p class="tags">${c.tags.map(t => `<span>${esc(t)}</span>`).join('')}</p>` : ''}
         ${c.link?.label ? `<a class="more" href="${esc(c.link.href)}"${ext(c.link.href)}>${esc(c.link.label)}</a>` : ''}
@@ -136,136 +137,179 @@
     });
   }
 
-  /* ---------- plates, cars, shots ---------- */
-  const PLATES = {
-    bg1:  { fx: .5,  fxm: .62, fy: .5 },
-    bg1b: { fx: .45, fxm: .3,  fy: .5 },
-    bg2:  { fx: .5,  fxm: .3,  fy: .77 },
-    bg4:  { fx: .5,  fxm: .42, fy: .5 },
-    bg4b: { fx: .5,  fxm: .62, fy: .5 },
-    bg3:  { fx: .5,  fxm: .45, fy: .77 },
-    bg3x: { fx: .5,  fxm: .4,  fy: .6 },
-    bg6:  { fx: .5,  fxm: .5,  fy: .6 },
-    bg5:  { fx: .5,  fxm: .3,  fy: .78 },
-    bg5c: { fx: .5,  fxm: .55, fy: .5 },
-  };
-  const TYPES = {
-    mxw:  { nw: 1554, nh: 550, wheels: [[264.7, 426.4, 98], [1234.5, 427.6, 98]] },
-    mxb:  { nw: 1559, nh: 559, wheels: [[269.5, 430.5, 98], [1247.5, 432.6, 98]] },
-    car1: { nw: 1567, nh: 493, wheels: [[272.5, 368, 100], [1245, 368, 100]] },
-    car2: { nw: 1511, nh: 549, wheels: [[273.5, 424, 100], [1217, 424, 100]] },
-    car3: { nw: 1551, nh: 562, wheels: [[267.8, 431, 106], [1287.2, 431, 106]], head: [100, 275], tail: [1465, 222], port: [1330, 262] },
-  };
-  // park = left edge in plate px; w/base for desktop, wm/basem for phones (cars sit further back so they clear the laptop)
-  const CARS = [
-    { id: 'c1',  plate: 'bg2',  type: 'mxw',  park: 60,  w: 840, base: 718, wm: 480, basem: 676,
-      off: p => p < .585 ? seg(p, .115, .19, 1900, 0) : seg(p, .585, .628, 0, -2100, easeIn) },
-    { id: 'c3a', plate: 'bg2',  type: 'car3', park: 90,  w: 780, base: 722, wm: 450, basem: 678,
-      off: p => seg(p, .625, .668, 1900, 0) },
-    { id: 'c2',  plate: 'bg3',  type: 'mxb',  park: 420, w: 840, base: 722, wm: 480, basem: 672,
-      off: p => seg(p, .425, .49, 1900, 0) },
-    { id: 'c3n', plate: 'bg5',  type: 'car3', park: 30,  w: 800, base: 728, wm: 460, basem: 680, night: true,
-      off: () => 0 },
-  ];
-  const SHOTS = [
-    { a: 0,    plate: 'bg1',  z: [1, 1.08],    d: [0, .012],    g: 'dusk' },
-    { a: .055, plate: 'bg1b', z: [1.06, 1],    d: [.01, -.01],  g: 'dusk' },
-    { a: .11,  plate: 'bg2',  z: [1.07, 1],    d: [.025, -.015], g: 'day' },
-    { a: .28,  plate: 'bg4',  z: [1, 1.1],     d: [-.01, .02],  g: 'warm' },
-    { a: .35,  plate: 'bg4b', z: [1.08, 1],    d: [0, 0],       g: 'warm' },
-    { a: .42,  plate: 'bg3',  z: [1.08, 1],    d: [.02, -.01],  g: 'violet' },
-    { a: .50,  plate: 'bg3x', z: [1, 1.05],    d: [0, .01],     g: 'violet', fade: .03 },
-    { a: .58,  plate: 'bg2',  z: [1, 1.06],    d: [-.02, .01],  g: 'day' },
-    { a: .67,  plate: 'bg6',  z: [1.1, 1],     d: [.02, -.02],  g: 'day' },
-    { a: .75,  plate: 'bg5',  z: [1.1, 1.02],  d: [.02, 0],     g: 'night' },
-    { a: .84,  plate: 'bg5c', z: [1, 1.08],    d: [0, -.01],    g: 'night' },
-    { a: .92,  plate: 'bg5',  z: [1.02, 1],    d: [0, 0],       g: 'night' },
-  ];
-  SHOTS.forEach((s, i) => s.b = SHOTS[i + 1] ? SHOTS[i + 1].a : 1);
-  const TINT = { dusk: [226, 196, 182], day: [214, 220, 232], warm: [232, 214, 196], violet: [196, 190, 232], night: [70, 84, 138] };
-  const GRADE = { dusk: [255, 122, 61, .4], day: [87, 131, 255, .18], warm: [255, 170, 110, .24], violet: [122, 107, 255, .32], night: [0, 67, 255, .42] };
+  /* ---------- 3D: the bench and the laptop are real geometry, the workshop is a panorama around them ---------- */
+  const THREE = await import('three');
+  const { RoundedBoxGeometry } = await import('three/addons/geometries/RoundedBoxGeometry.js');
+  const { RoomEnvironment } = await import('three/addons/environments/RoomEnvironment.js');
   const CH = [
-    { a: 0,   screen: 'term',    t: 'SKAÐI' },
-    { a: .11, screen: 'dcan',    t: 'ÐCAN' },
-    { a: .28, screen: 'flasher', t: 'Flasher' },
-    { a: .42, screen: 'board',   t: 'BoardViewer' },
-    { a: .58, screen: 'why',     t: 'Почему' },
-    { a: .75, screen: 'pro',     t: 'Сервис' },
-    { a: .92, screen: 'pro',     t: 'Тарифы' },
+    { a: 0,   t: 'SKAÐI' },
+    { a: .24, t: 'Программы' },
+    { a: .54, t: 'Почему' },
+    { a: .74, t: 'Для профи' },
+    { a: .93, t: 'Тарифы' },
   ];
   CH.forEach((c, i) => c.b = CH[i + 1] ? CH[i + 1].a : 1);
+  const screenFor = (c, lc) => c === 0 ? 'term' : c === 1 ? ['dcan', 'flasher', 'board'][Math.min(2, Math.floor(lc * 3))] : c === 2 ? 'why' : 'pro';
 
   const stage = $('#stage'), flight = $('#flight'), frame = $('#frame'), scenes = $('#scenes');
   const blocks = $$('.blk'), screens = {}; $$('.scr').forEach(s => screens[s.dataset.screen] = s);
-  const grade = $('#grade'), tint = $('#tint'), hudN = $('#hudN'), hudT = $('#hudT'), hudBar = $('#hudBar'), hint = $('#hint');
+  const hudN = $('#hudN'), hudT = $('#hudT'), hudBar = $('#hudBar'), hint = $('#hint');
+  const screenEl = $('#screen'), SW = 1000, SH = 625;
+  frame.insertBefore(screenEl, $('.copy'));
 
-  // build plates
-  const worlds = {};
-  for (const [name, cfg] of Object.entries(PLATES)) {
-    const w = document.createElement('div'); w.className = 'world';
-    const im = new Image(); im.className = 'plate'; im.alt = ''; im.src = `assets/${name}.jpg`; im.decoding = 'async';
-    w.append(im); scenes.append(w); worlds[name] = { el: w, ...cfg };
-  }
-  // build cars: body + rim discs cut from the same image so they can spin
-  const pct = (v, of) => v / of * 100 + '%';
-  CARS.forEach(c => {
-    const T = TYPES[c.type], src = `assets/${c.type}.webp`;
-    const el = document.createElement('div'); el.className = 'car' + (c.night ? ' night' : '') + (c.noreflect ? ' noreflect' : '');
-    const body = new Image(); body.src = src; body.className = 'body'; body.alt = ''; el.append(body);
-    c.wheels = T.wheels.map(([cx, cy, r]) => {
-      const d = document.createElement('div'); d.className = 'wheel';
-      Object.assign(d.style, { left: pct(cx - r, T.nw), top: pct(cy - r, T.nh), width: pct(2 * r, T.nw), height: pct(2 * r, T.nh) });
-      const im = new Image(); im.src = src; im.alt = '';
-      Object.assign(im.style, { width: pct(T.nw, 2 * r), left: pct(-(cx - r), 2 * r), top: pct(-(cy - r), 2 * r) });
-      d.append(im); el.append(d);
-      const touch = document.createElement('i'); touch.className = 'touch'; touch.style.left = pct(cx, T.nw); el.append(touch);
-      return { el: d, r };
-    });
-    if (c.night) {
-      const lamp = (cls, [x, y]) => { const l = document.createElement('i'); l.className = 'lamp ' + cls; l.style.left = pct(x, T.nw); l.style.top = pct(y, T.nh); el.append(l); };
-      lamp('beam', T.head); lamp('pool', [T.head[0], T.nh * .98]); lamp('head', T.head); lamp('tail', T.tail); lamp('port', T.port);
-      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-      svg.setAttribute('class', 'cable'); svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-      svg.innerHTML = '<path class="wire"/><path class="flow"/>';
-      c.cable = svg;
+  // homography: the SW×SH html screen onto four points in viewport px (TL, TR, BR, BL)
+  function quadMatrix(dst) {
+    const src = [[0, 0], [SW, 0], [SW, SH], [0, SH]], A = [], B = [];
+    src.forEach(([x, y], i) => { const [u, v] = dst[i];
+      A.push([x, y, 1, 0, 0, 0, -u * x, -u * y]); B.push(u);
+      A.push([0, 0, 0, x, y, 1, -v * x, -v * y]); B.push(v); });
+    for (let i = 0; i < 8; i++) {
+      let m = i; for (let r = i + 1; r < 8; r++) if (Math.abs(A[r][i]) > Math.abs(A[m][i])) m = r;
+      [A[i], A[m]] = [A[m], A[i]]; [B[i], B[m]] = [B[m], B[i]];
+      for (let r = 0; r < 8; r++) if (r !== i) { const f = A[r][i] / A[i][i]; for (let k = i; k < 8; k++) A[r][k] -= f * A[i][k]; B[r] -= f * B[i]; }
     }
-    worlds[c.plate].el.append(el);
-    if (c.cable) worlds[c.plate].el.append(c.cable);
-    c.el = el; c.T = T;
+    const h = B.map((v, i) => v / A[i][i]);
+    return `matrix3d(${h[0]},${h[3]},0,${h[6]},${h[1]},${h[4]},0,${h[7]},0,0,1,0,${h[2]},${h[5]},0,1)`;
+  }
+
+  // renderer
+  const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.domElement.className = 'gl';
+  scenes.append(renderer.domElement);
+  const scene = new THREE.Scene(); scene.background = new THREE.Color('#2b2c2f');
+  const cam3 = new THREE.PerspectiveCamera(36, 1, .05, 100);
+  const loader = new THREE.TextureLoader();
+  const tex = (url, srgb = true) => { const t = loader.load(url); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8; return t; };
+
+  // workshop panorama on a cylinder around the bench (image covers 170°)
+  const pano = tex('assets/pano.jpg');
+  pano.wrapS = THREE.RepeatWrapping; pano.repeat.x = -1; pano.offset.x = 1;
+  const R = 11, ARC = THREE.MathUtils.degToRad(170), CYH = R * ARC * 821 / 1916;
+  const cyl = new THREE.Mesh(new THREE.CylinderGeometry(R, R, CYH, 128, 1, true, Math.PI - ARC / 2, ARC),
+    new THREE.MeshBasicMaterial({ map: pano, side: THREE.BackSide, toneMapped: false }));
+  cyl.position.y = .95 + .52 * CYH - CYH / 2; scene.add(cyl);
+  // environment for metal reflections
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  // studio-like daylight reflections so brushed aluminium reads as metal, not as a dark mirror of the room
+  scene.environment = pmrem.fromScene(new RoomEnvironment(), .04).texture;
+
+  // floor: matte micro-cement that fades into the painted floor of the panorama
+  const fade = document.createElement('canvas'); fade.width = fade.height = 256;
+  { const g = fade.getContext('2d'), gr = g.createRadialGradient(128, 128, 30, 128, 128, 128);
+    gr.addColorStop(0, '#fff'); gr.addColorStop(.55, '#fff'); gr.addColorStop(1, '#000'); g.fillStyle = gr; g.fillRect(0, 0, 256, 256); }
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(9, 9), new THREE.MeshStandardMaterial({ color: '#232427', roughness: .95, metalness: 0, alphaMap: new THREE.CanvasTexture(fade), transparent: true }));
+  floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+
+  // light: soft daylight from skylights
+  scene.add(new THREE.HemisphereLight('#eef2f7', '#2a2b2e', 1.0));
+  const sun = new THREE.DirectionalLight('#ffffff', 2.3); sun.position.set(1.2, 6, 2.2);
+  sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.radius = 6; sun.shadow.bias = -.0004;
+  Object.assign(sun.shadow.camera, { left: -2, right: 2, top: 2, bottom: -2, near: 1, far: 12 }); scene.add(sun);
+
+  // materials
+  const brushed = document.createElement('canvas'); brushed.width = 512; brushed.height = 512;
+  { const g = brushed.getContext('2d'); g.fillStyle = '#8a8a8a'; g.fillRect(0, 0, 512, 512);
+    for (let i = 0; i < 2600; i++) { const y = Math.random() * 512, c = 110 + Math.random() * 60 | 0; g.fillStyle = `rgba(${c},${c},${c},.35)`; g.fillRect(Math.random() * 512, y, 40 + Math.random() * 300, 1); } }
+  const brushTex = new THREE.CanvasTexture(brushed); brushTex.wrapS = brushTex.wrapT = THREE.RepeatWrapping; brushTex.repeat.set(2, 2);
+  const alu = new THREE.MeshStandardMaterial({ color: '#e3e6ea', metalness: .85, roughness: .32, roughnessMap: brushTex, envMapIntensity: 1.1 });
+  const aluDark = new THREE.MeshStandardMaterial({ color: '#c3c7cd', metalness: .85, roughness: .4, roughnessMap: brushTex });
+  const black = new THREE.MeshStandardMaterial({ color: '#2a2c30', metalness: .65, roughness: .42 });
+  const plastic = new THREE.MeshStandardMaterial({ color: '#141518', metalness: .1, roughness: .55 });
+  const shadowCast = m => { m.castShadow = true; m.receiveShadow = true; return m; };
+  const box = (w, h, d, mat, x, y, z, r = 0) => { const g = r ? new RoundedBoxGeometry(w, h, d, 3, r) : new THREE.BoxGeometry(w, h, d); const m = shadowCast(new THREE.Mesh(g, mat)); m.position.set(x, y, z); return m; };
+
+  const bench = new THREE.Group(); scene.add(bench);
+  // table: top, legs, rails, drawer unit with handles
+  const TOP = .9;
+  bench.add(box(1.6, .04, .76, alu, 0, TOP - .02, 0, .008));
+  [[-.74, -.32], [-.74, .32], [.74, -.32], [.74, .32]].forEach(([x, z]) => bench.add(box(.045, TOP - .04, .045, aluDark, x, (TOP - .04) / 2, z)));
+  bench.add(box(.045, .04, .64, aluDark, -.74, .16, 0)); bench.add(box(1.48, .04, .04, aluDark, 0, .16, -.32));
+  bench.add(box(.46, .6, .64, alu, .48, TOP - .04 - .3, 0, .006));
+  for (let i = 0; i < 4; i++) {
+    const y = TOP - .1 - i * .15;
+    bench.add(box(.44, .002, .005, plastic, .48, y - .068, .322));
+    bench.add(box(.14, .012, .016, aluDark, .48, y, .334, .004));
+  }
+
+  // laptop: base, keyboard, trackpad, lid with screen
+  const laptop = new THREE.Group(); laptop.position.set(-.36, TOP, .04); laptop.rotation.y = .12; bench.add(laptop);
+  laptop.add(box(.356, .016, .248, black, 0, .008, 0, .006));
+  const kb = document.createElement('canvas'); kb.width = 1024; kb.height = 400;
+  { const g = kb.getContext('2d'); g.fillStyle = '#16171a'; g.fillRect(0, 0, 1024, 400); g.fillStyle = '#0b0c0e';
+    const rows = [14, 14, 13, 12, 11, 9]; rows.forEach((n, r) => { const kw = 1000 / 14.2; for (let k = 0; k < n; k++) g.fillRect(12 + k * kw + (14 - n) * kw / 2, 12 + r * 64, kw - 8, 54); }); }
+  const keys = new THREE.Mesh(new THREE.PlaneGeometry(.29, .112), new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(kb), color: '#4a4c50', roughness: .8, envMapIntensity: .3 }));
+  keys.rotation.x = -Math.PI / 2; keys.position.set(0, .0163, -.045); laptop.add(keys);
+  const pad = new THREE.Mesh(new THREE.PlaneGeometry(.15, .085), new THREE.MeshStandardMaterial({ color: '#34363b', metalness: .4, roughness: .3 }));
+  pad.rotation.x = -Math.PI / 2; pad.position.set(0, .0163, .07); laptop.add(pad);
+  const lid = new THREE.Group(); lid.position.set(0, .016, -.122); lid.rotation.x = -.32; laptop.add(lid);
+  lid.add(box(.356, .248, .006, black, 0, .124, -.003, .005));
+  const glass = new THREE.Mesh(new THREE.PlaneGeometry(.346, .238), new THREE.MeshStandardMaterial({ color: '#050607', roughness: .08, metalness: .2 }));
+  glass.position.set(0, .124, .0002); lid.add(glass);
+  // screen corners in lid space (16:10 panel inside the bezel)
+  const SCR = [[-.162, .228], [.162, .228], [.162, .025], [-.162, .025]].map(([x, y]) => new THREE.Vector3(x, y, .0006));
+
+  // control modules, loose boards, chips, JTAG adapter with ribbon, tweezers
+  const pcbTex = tex('assets/t-pcb.jpg');
+  const pcbMat = new THREE.MeshStandardMaterial({ map: pcbTex, roughness: .5, metalness: .2 });
+  [[.02, -.17, .2], [.27, -.15, -.25]].forEach(([x, z, ry]) => {
+    const g = new THREE.Group(); g.position.set(x, TOP, z); g.rotation.y = ry; bench.add(g);
+    g.add(box(.2, .03, .15, alu, 0, .015, 0, .004));
+    const top = new THREE.Mesh(new THREE.PlaneGeometry(.18, .13), pcbMat); top.rotation.x = -Math.PI / 2; top.position.y = .0305; g.add(top);
+    g.add(box(.05, .022, .02, plastic, -.04, .02, .083)); g.add(box(.05, .022, .02, plastic, .03, .02, .083));
   });
+  const loose = box(.15, .004, .1, pcbMat, .0, TOP + .002, .2); loose.rotation.y = -.15; bench.add(loose);
+  for (let i = 0; i < 9; i++) bench.add(box(.016, .004, .016, plastic, .14 + (i % 3) * .032 + Math.random() * .01, TOP + .002, .17 + (i / 3 | 0) * .03));
+  const jtag = box(.07, .022, .045, plastic, .3, TOP + .011, .18, .004); jtag.rotation.y = .3; bench.add(jtag);
+  const ribbon = box(.13, .002, .026, new THREE.MeshStandardMaterial({ color: '#b9bcc4', roughness: .6 }), .16, TOP + .002, .22); ribbon.rotation.y = .2; bench.add(ribbon);
+  [0, .012].forEach(o => { const t = box(.13, .003, .005, alu, .55, TOP + .002, .24 + o); t.rotation.y = .5 + o * 6; bench.add(t); });
 
-  let vw = 0, vh = 0, mobile = false;
-  function layoutCars() {
-    CARS.forEach(c => {
-      c.cw = mobile ? c.wm : c.w;
-      c.cb = mobile ? c.basem : c.base;
-      c.cp = mobile ? worlds[c.plate].fxm * W - c.cw / 2 : c.park;
-      c.k = c.cw / c.T.nw; c.ch = c.T.nh * c.k;
-      c.el.style.width = c.cw + 'px';
-      if (c.cable) {
-        const [px, py] = [c.cp + c.T.port[0] * c.k, c.cb - c.ch + c.T.port[1] * c.k], fy = c.cb - 4;
-        const d = `M${px} ${py} C${px + 26} ${py + 70} ${px + 30} ${fy} ${px + 140} ${fy} L${px + 1600} ${fy + 6}`;
-        $$('path', c.cable).forEach(pth => pth.setAttribute('d', d));
-      }
-    });
+  // cable: laptop port, over the table edge, down to the floor and away towards the Tesla
+  const path = new THREE.CatmullRomCurve3([
+    new THREE.Vector3(-.54, TOP + .008, .05), new THREE.Vector3(-.7, TOP + .01, .12), new THREE.Vector3(-.81, TOP - .02, .16),
+    new THREE.Vector3(-.86, .5, .2), new THREE.Vector3(-.9, .03, .35), new THREE.Vector3(-1.3, .006, .9), new THREE.Vector3(-2.6, .006, 1.4), new THREE.Vector3(-4.2, .006, 1.2)]);
+  bench.add(shadowCast(new THREE.Mesh(new THREE.TubeGeometry(path, 200, .0045, 8), new THREE.MeshStandardMaterial({ color: '#0d0e10', roughness: .55 }))));
+
+  // camera: drone orbit around the laptop, 90° in total
+  const T = new THREE.Vector3(); laptop.updateWorldMatrix(true, false); laptop.localToWorld(T.set(0, .1, -.02));
+  const KEYS = [ // p, angle°, distance, height
+    [0,   -46, 2.4, 1.95],
+    [.24, -18, 2.0, 1.78],
+    [.54,  14, 1.7, 1.62],
+    [.74,  34, 1.45, 1.52],
+    [1,    44, 1.38, 1.5],
+  ];
+  const ease = t => t * t * (3 - 2 * t);
+  function cam(p) {
+    let i = 0; while (i < KEYS.length - 2 && p > KEYS[i + 1][0]) i++;
+    const t = ease(clamp((p - KEYS[i][0]) / (KEYS[i + 1][0] - KEYS[i][0])));
+    return KEYS[i].map((v, j) => lerp(v, KEYS[i + 1][j], t));
   }
-  function measure() { vw = stage.clientWidth; vh = stage.clientHeight; mobile = vw <= 760; layoutCars(); lead(); }
 
-  function placeCar(c, p) {
-    const s = c.cw / c.w, off = c.off(p) * s, lift = c.lift ? c.lift(p) * s : 0;
-    c.el.style.transform = `translate3d(${(c.cp + off).toFixed(1)}px,${(c.cb - c.ch + lift).toFixed(1)}px,0)`;
-    const deg = off / (c.wheels[0].r * c.k) * 57.2958;
-    c.wheels.forEach(w => w.el.style.transform = `rotate(${deg.toFixed(1)}deg)`);
-    if (c.lift) { c.el.style.setProperty('--sh', (-lift / c.ch * 100 * .9).toFixed(1) + '%'); c.el.style.setProperty('--sho', (1 - sm(0, -120, lift) * .7).toFixed(2)); }
+  let vw = 0, vh = 0, mobile = false, dirty = true;
+  function measure() {
+    vw = stage.clientWidth; vh = stage.clientHeight; mobile = vw <= 760;
+    renderer.setSize(vw, vh, false); cam3.aspect = vw / vh;
+    cam3.fov = mobile ? 52 : 36;
+    // shift the frame so the laptop sits right of centre on desktop, low centre on phones
+    if (mobile) cam3.setViewOffset(vw, vh, 0, -vh * .2, vw, vh); else cam3.setViewOffset(vw, vh, -vw * .17, vh * .06, vw, vh);
+    cam3.updateProjectionMatrix(); dirty = true; lead();
   }
-
-  // camera: cover-fit the plate; zoom keeps the floor line (fy) where it is
-  function placeWorld(w, z, drift) {
-    const s = Math.max(vw / W, vh / H) * z;
-    const fx = (mobile ? w.fxm : w.fx) + drift;
-    const tx = clamp(vw / 2 - fx * W * s, vw - W * s, 0);
-    const ty = w.fy * (vh - H * s);
-    w.el.style.transform = `translate3d(${tx.toFixed(1)}px,${ty.toFixed(1)}px,0) scale(${s.toFixed(4)})`;
+  const v3 = new THREE.Vector3(), nrm = new THREE.Vector3();
+  function place3d(p, now) {
+    const [, ang, dist, h0] = cam(p), a = THREE.MathUtils.degToRad(ang);
+    const hgt = mobile ? h0 + .7 : h0; // phones: higher drone, dark floor behind the copy
+    const hover = reduce ? 0 : Math.sin(now / 1600) * .006;
+    cam3.position.set(T.x + Math.sin(a) * dist, hgt + hover, T.z + Math.cos(a) * dist);
+    cam3.lookAt(T);
+    renderer.render(scene, cam3);
+    // live screen: project the panel corners and map the html screen onto them
+    lid.updateWorldMatrix(true, false);
+    const pts = SCR.map(c => { v3.copy(c); lid.localToWorld(v3); v3.project(cam3); return [(v3.x + 1) / 2 * vw, (1 - v3.y) / 2 * vh]; });
+    screenEl.style.transform = quadMatrix(pts);
   }
 
   /* ---------- laptop screens ---------- */
@@ -317,41 +361,22 @@
   const localOf = (arr, i, p) => clamp((p - arr[i].a) / (arr[i].b - arr[i].a));
   let lastCh = -1;
   function render(p, now) {
-    let k = 0; for (let i = 1; i < SHOTS.length; i++) if (p >= SHOTS[i].a - (SHOTS[i].fade || F)) k = i;
-    const fk = SHOTS[k].fade || F, t = k ? sm(SHOTS[k].a - fk, SHOTS[k].a + fk, p) : 1;
-    const S = SHOTS[k], P = k ? SHOTS[k - 1] : null;
-    const top = S.plate, prev = P ? P.plate : null;
-    for (const [name, w] of Object.entries(worlds)) {
-      let o = 0, zi = 0;
-      if (name === top) { o = prev === top ? 1 : t; zi = 2; }
-      else if (name === prev) { o = 1; zi = 1; }
-      if (w.o !== o) { w.el.style.opacity = o; w.el.style.visibility = o ? 'visible' : 'hidden'; w.o = o; }
-      w.el.style.zIndex = zi;
-    }
-    const lk = localOf(SHOTS, k, p), punch = SHOTS[k].fade ? 0 : (1 - t) * .07;
-    placeWorld(worlds[top], lerp(S.z[0], S.z[1], lk) + punch, lerp(S.d[0], S.d[1], lk));
-    if (prev && prev !== top) placeWorld(worlds[prev], P.z[1] - punch * .5, P.d[1]);
-
-    const g0 = GRADE[(P || S).g], g1 = GRADE[S.g];
-    const g = g0.map((v, i) => lerp(v, g1[i], t));
-    grade.style.background = `rgba(${g[0] | 0},${g[1] | 0},${g[2] | 0},${g[3].toFixed(3)})`;
-    const tn = TINT[(P || S).g].map((v, i) => lerp(v, TINT[S.g][i], t) | 0);
-    tint.style.background = `rgb(${tn})`;
-
-    CARS.forEach(c => { if (c.plate === top || c.plate === prev) placeCar(c, p); });
+    place3d(p, now);
 
     let c = 0; for (let i = 0; i < CH.length; i++) if (p >= CH[i].a) c = i;
     const lc = localOf(CH, c, p);
-    const visible = c === 0 ? p < CH[0].b - .01 : lc > .03 && p < CH[c].b - .01;
+    const visible = c === 0 ? p < CH[0].b - .02 : lc > .12 && p < CH[c].b - .02;
     blocks.forEach(b => b.classList.toggle('on', +b.dataset.ch === c && visible));
+    const scr = screenFor(Math.min(c, 3), c === 1 ? lc : 0);
+    $$('.prog li').forEach((li, i) => li.classList.toggle('on', c === 1 && scr === ['dcan', 'flasher', 'board'][i]));
     if (c !== lastCh) { hudN.textContent = String(c).padStart(2, '0'); hudT.textContent = CH[c].t; lastCh = c; }
     hudBar.style.width = (lc * 100).toFixed(1) + '%';
     hint.style.opacity = p < .01 ? 1 : 0;
-    setScreen(CH[c].screen, now);
+    setScreen(scr, now);
 
     const q = sm(.96, 1, p);
     frame.style.transform = q ? `scale(${(1 - .1 * q).toFixed(4)})` : '';
-    frame.style.borderRadius = (18 * q).toFixed(1) + 'px';
+    frame.style.borderRadius = (4 * q).toFixed(1) + 'px';
   }
 
   let target = 0, cur = 0, jump = null;
@@ -377,7 +402,7 @@
 
   /* ---------- preloader counts real asset loading ---------- */
   const pre = $('#pre'), preN = $('#preN');
-  const urls = [...Object.keys(PLATES).map(n => `assets/${n}.jpg`), 'assets/mxw.webp', 'assets/mxb.webp', 'assets/car3.webp', 'assets/desk.webp', 'assets/desk-strip.webp'];
+  const urls = ['assets/pano.jpg', 'assets/t-pcb.jpg'];
   let loaded = 0, shown = 0; const t0 = performance.now();
   urls.forEach(u => { const i = new Image(); i.onload = i.onerror = () => loaded++; i.src = u; });
   if (jump !== null) { pre.remove(); requestAnimationFrame(loop); return; }

@@ -370,3 +370,115 @@ p{margin:0}
 /* one grid for the whole page: lower sections use the same side gutters as the fixed header */
 .wrap{max-width:none;margin:0;padding-left:var(--pad);padding-right:var(--pad)}
 .pgrid{max-width:none}
+/* ---------- v3: one workshop, the laptop screen lives inside the photo ---------- */
+.flight{height:800vh}
+.world .screen{left:0;top:0;width:1000px;height:625px;transform-origin:0 0;border-radius:0;box-shadow:0 0 30px rgba(87,131,255,.25)}
+.scenes{filter:none}
+.blk[data-ch="1"]{left:auto;right:var(--pad);width:min(40vw,560px)}
+.prog{list-style:none;margin:0 0 4px;padding:0;display:flex;flex-direction:column;gap:2px}
+.prog li{display:grid;grid-template-columns:28px 1fr;column-gap:10px;padding:12px 12px;border-radius:4px;transition:background .4s,box-shadow .4s;color:var(--muted)}
+.prog li span{grid-row:span 2;font-size:11px;color:#5d6270;padding-top:3px}
+.prog li b{font-weight:500;color:#C9CCD2;font-size:15px;display:flex;align-items:center;gap:8px}
+.prog li b em{font-style:normal;font-size:10px;padding:2px 6px;border-radius:4px;background:var(--blue);color:#fff}
+.prog li small{font-size:12.5px;line-height:1.35;margin-top:2px}
+.prog li.on{background:rgba(87,240,216,.07);box-shadow:inset 2px 0 0 #57f0d8}
+.prog li.on span{color:#57f0d8}.prog li.on b{color:#fff}.prog li.on small{color:#D5D8DE}
+@media (max-width:760px){.blk[data-ch="1"]{left:var(--pad);right:var(--pad);width:auto}.prog li{padding:8px 10px}}
+
+/* text sits on the empty side of each shot; the scrim follows it */
+.scrim{background:linear-gradient(90deg,rgba(6,8,12,.75) 0,rgba(6,8,12,.35) 34%,rgba(6,8,12,0) 52%),linear-gradient(180deg,rgba(6,8,12,.45) 0,rgba(6,8,12,0) 22%)}
+.frame.txt-r .scrim{background:linear-gradient(270deg,rgba(6,8,12,.75) 0,rgba(6,8,12,.35) 34%,rgba(6,8,12,0) 52%),linear-gradient(180deg,rgba(6,8,12,.45) 0,rgba(6,8,12,0) 22%)}
+.scrim{transition:background .6s}
+@media (max-width:760px){.scrim,.frame.txt-r .scrim{background:linear-gradient(180deg,rgba(6,8,12,.85) 0,rgba(6,8,12,.5) 45%,rgba(6,8,12,0) 62%)}}
+/* headlines stay inside the empty part of the shot */
+.blk h1,.blk h2{font-size:clamp(36px,4.2vw,84px)}
+.blk h1{font-size:clamp(44px,5.4vw,104px)}
+.blk h2.h-long{font-size:clamp(30px,3.4vw,68px)}
+.blk{width:40vw}
+.blk[data-ch="1"]{width:min(36vw,560px)}
+@media (max-width:760px){.blk h1{font-size:clamp(36px,11vw,56px)}.blk h1,.blk h2{font-size:clamp(28px,8.6vw,44px)}.blk h2.h-long{font-size:clamp(22px,6.6vw,34px)}.blk{width:auto}}
+@media (max-width:760px){.blk[data-ch="1"]{left:var(--pad);right:var(--pad);width:auto}}
+
+/* v5: the empty space is part of the photo itself, no scrim */
+.scrim,.frame.txt-r .scrim{display:none}
+.grade{display:none}
+.blk[data-ch="2"],.blk[data-ch="3"]{top:auto;bottom:11vh}
+/* last shot lies on a bright aluminium table: dark copy */
+.frame.ink .blk[data-ch="3"]{color:#0B0D12}
+.frame.ink .blk[data-ch="3"] .kick{color:#3c414b}
+.frame.ink .blk[data-ch="3"] .glass{background:rgba(255,255,255,.35);border-color:rgba(0,0,0,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 20px 50px rgba(0,0,0,.12)}
+.frame.ink .blk[data-ch="3"] .lead{color:#1b1e24}
+.frame.ink .blk[data-ch="3"] .more{border-color:rgba(0,0,0,.5)}
+.frame.ink .hud{color:#1b1e24;text-shadow:none}.frame.ink .hud-bar{background:rgba(0,0,0,.2);box-shadow:none}.frame.ink .hud-bar i{background:#0B0D12}
+@media (max-width:760px){.blk[data-ch="2"],.blk[data-ch="3"]{top:auto;bottom:6vh}}
+/* phones: portrait crop can't keep the empty surface next to the laptop, so copy stays on top in light ink */
+@media (max-width:760px){
+  .blk[data-ch="2"],.blk[data-ch="3"]{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 76px)}
+  .frame.ink .blk[data-ch="3"]{color:var(--ink)}
+  .frame.ink .blk[data-ch="3"] .kick{color:var(--muted)}
+  .frame.ink .blk[data-ch="3"] .glass{background:rgba(12,14,20,.4);border-color:rgba(255,255,255,.14)}
+  .frame.ink .blk[data-ch="3"] .lead{color:#E4E6EA}
+  .frame.ink .blk[data-ch="3"] .more{border-color:rgba(255,255,255,.5)}
+}
+/* v6: one living daylight shot */
+.frame{perspective:1600px}
+.world.on{opacity:1;visibility:visible}
+.bench{position:absolute;left:0;top:0;z-index:4;will-change:transform}
+.bench-in{position:relative;transform-style:preserve-3d;will-change:transform}
+.bench-in>img{display:block;width:100%;height:auto;position:relative;z-index:1}
+.bench-in .screen{position:absolute;left:0;top:0;width:1000px;height:625px;transform-origin:0 0;z-index:2;border-radius:0;box-shadow:none}
+.bshadow{position:absolute;left:4%;right:2%;bottom:-3%;height:12%;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.55),rgba(0,0,0,.2) 60%,transparent);z-index:0}
+.blk[data-ch="2"]{top:calc(env(safe-area-inset-top,0px) + 13vh);bottom:auto}
+.blk[data-ch="3"]{top:calc(env(safe-area-inset-top,0px) + 13vh);bottom:auto;left:auto;right:var(--pad);width:min(38vw,600px)}
+.frame.ink .blk[data-ch="3"]{color:inherit}
+@media (max-width:760px){.blk[data-ch="3"]{left:var(--pad);right:var(--pad);width:auto}}
+.blk[data-ch="1"]{width:min(30vw,500px)}
+.blk[data-ch="3"]{left:var(--pad);right:auto;width:40vw}
+@media (max-width:760px){.blk[data-ch="1"],.blk[data-ch="3"]{left:var(--pad);right:var(--pad);width:auto}}
+/* all copy on the left wall, one rhythm */
+.blk[data-ch="1"]{left:var(--pad);right:auto;width:min(34vw,540px)}
+.prog li{padding:9px 12px}
+@media (max-width:760px){.blk[data-ch="1"],.blk[data-ch="3"]{left:var(--pad);right:var(--pad);width:auto}.prog li small{display:none}.prog li{padding:6px 10px}}
+/* v7: copy split between wall (headline) and floor (body), no plates */
+.blk .glass{position:fixed;left:var(--pad);bottom:12vh;max-width:min(34vw,480px);margin:0;padding:0;background:none;border:0;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;border-radius:0}
+.blk .lead{font-size:15px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.blk .price,.blk .more{text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.blk .tags span{background:rgba(255,255,255,.08)}
+.prog li.on{background:rgba(255,255,255,.08)}
+.bshadow{left:-2%;right:-4%;bottom:2%;height:16%;background:radial-gradient(closest-side,rgba(0,0,0,.6),rgba(0,0,0,.25) 55%,transparent)}
+@media (max-width:760px){.blk .glass{left:var(--pad);right:var(--pad);bottom:auto;top:calc(env(safe-area-inset-top,0px) + 200px);max-width:none}}
+.prog li small{max-height:0;overflow:hidden;opacity:0;transition:max-height .5s,opacity .4s}
+.prog li.on small{max-height:4em;opacity:1}
+.prog li{padding:7px 12px}
+.blk[data-ch="1"] .glass{bottom:8vh}
+.blk h2.h-long{font-size:clamp(28px,3vw,60px)}
+@media (max-width:760px){.blk .glass,.blk[data-ch="1"] .glass{position:static;margin-top:18px;max-width:none}}
+/* v8: one photo, drone camera; all copy on the wall */
+.frame{perspective:2200px}
+.world{transform-style:flat}
+.blk .glass,.blk[data-ch="1"] .glass{position:static;margin-top:30px;max-width:min(32vw,460px)}
+.blk .lead{font-size:15px;line-height:1.45;color:#fff;text-shadow:none}
+.blk .price,.blk .more{text-shadow:none}
+.blk[data-ch="1"],.blk[data-ch="3"]{left:var(--pad);right:auto;width:40vw}
+.blk[data-ch="2"],.blk[data-ch="3"]{top:calc(env(safe-area-inset-top,0px) + 13vh);bottom:auto}
+@media (max-width:760px){.blk,.blk[data-ch="1"],.blk[data-ch="3"]{left:var(--pad);right:var(--pad);width:auto}.blk .glass,.blk[data-ch="1"] .glass{max-width:none;margin-top:16px}}
+/* desktop copy lives in the top half, over the clean part of the wall */
+@media (min-width:761px){
+  .blk,.blk[data-ch="1"],.blk[data-ch="2"],.blk[data-ch="3"]{top:calc(env(safe-area-inset-top,0px) + 10vh);width:min(36vw,560px)}
+  .blk h1{font-size:clamp(40px,4.6vw,92px)}
+  .blk h1,.blk h2{font-size:clamp(32px,3.5vw,72px)}
+  .blk h2.h-long{font-size:clamp(28px,2.8vw,56px)}
+  .kick{margin-bottom:14px}
+  .blk .glass,.blk[data-ch="1"] .glass{margin-top:22px;max-width:100%}
+  .blk .lead{font-size:14px}
+  .prog li{padding:5px 10px}
+}
+/* v9: real 3D bench */
+.gl{position:absolute;inset:0;width:100%;height:100%;display:block}
+.frame>.screen{position:absolute;left:0;top:0;width:1000px;height:625px;transform-origin:0 0;z-index:3;border-radius:0;box-shadow:none;pointer-events:none}
+/* v9: copy sits low on the dark floor, the workshop stays visible above */
+@media (min-width:761px){
+  .blk,.blk[data-ch="1"],.blk[data-ch="2"],.blk[data-ch="3"]{top:auto;bottom:10vh}
+}
+@media (max-width:760px){.blk,.blk[data-ch="1"],.blk[data-ch="2"],.blk[data-ch="3"]{top:auto;bottom:7vh}}
+@media (max-width:760px){.blk,.blk[data-ch="1"],.blk[data-ch="2"],.blk[data-ch="3"]{bottom:auto;top:calc(env(safe-area-inset-top,0px) + 76px)}}
