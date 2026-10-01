@@ -195,7 +195,9 @@ input:focus,textarea:focus{outline:none;border-color:var(--blue2)}
   }
 
   ['repo', 'branch', 'token'].forEach(k => { const v = LS(k); if (v) $('#' + k).value = v; });
-  $('#connect').onclick = () => { ['repo', 'branch', 'token'].forEach(k => LSset(k, $('#' + k).value.trim())); $('#gh').open = false; load(); };
+  $('#connect').onclick = () => {
+    const tv = $('#token').value.trim();
+    if (/^https?:|github\.com\//.test(tv)) { status('это ссылка на страницу токена, а нужен сам токен: строка github_pat_…, её показывают один раз при создании или после Regenerate', 'err'); return; } ['repo', 'branch', 'token'].forEach(k => LSset(k, $('#' + k).value.trim())); $('#gh').open = false; load(); };
   $('#forget').onclick = () => { LSset('token', null); $('#token').value = ''; load(); };
   $('#save').onclick = save;
   $('#dl').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })); a.download = 'content.json'; a.click(); };
