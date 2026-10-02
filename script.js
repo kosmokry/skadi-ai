@@ -141,6 +141,10 @@
   const THREE = await import('three');
   const { RoundedBoxGeometry } = await import('three/addons/geometries/RoundedBoxGeometry.js');
   const { RoomEnvironment } = await import('three/addons/environments/RoomEnvironment.js');
+  const { EffectComposer } = await import('three/addons/postprocessing/EffectComposer.js');
+  const { RenderPass } = await import('three/addons/postprocessing/RenderPass.js');
+  const { SSAOPass } = await import('three/addons/postprocessing/SSAOPass.js');
+  const { OutputPass } = await import('three/addons/postprocessing/OutputPass.js');
   const CH = [
     { a: 0,   t: 'SKAÐI' },
     { a: .24, t: 'Программы' },
@@ -176,8 +180,8 @@
   const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 1.75));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
-  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.18;
+  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.VSMShadowMap;
   renderer.domElement.className = 'gl';
   scenes.append(renderer.domElement);
   const scene = new THREE.Scene(); scene.background = new THREE.Color('#2b2c2f');
@@ -207,7 +211,7 @@
   // light: soft daylight from skylights
   scene.add(new THREE.HemisphereLight('#eef2f7', '#2a2b2e', 1.0));
   const sun = new THREE.DirectionalLight('#ffffff', 2.3); sun.position.set(1.2, 6, 2.2);
-  sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.radius = 6; sun.shadow.bias = -.0004;
+  sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.radius = 12; sun.shadow.blurSamples = 20; sun.shadow.bias = -.0006;
   Object.assign(sun.shadow.camera, { left: -2, right: 2, top: 2, bottom: -2, near: 1, far: 12 }); scene.add(sun);
 
   // materials
@@ -215,9 +219,11 @@
   { const g = brushed.getContext('2d'); g.fillStyle = '#8a8a8a'; g.fillRect(0, 0, 512, 512);
     for (let i = 0; i < 2600; i++) { const y = Math.random() * 512, c = 110 + Math.random() * 60 | 0; g.fillStyle = `rgba(${c},${c},${c},.35)`; g.fillRect(Math.random() * 512, y, 40 + Math.random() * 300, 1); } }
   const brushTex = new THREE.CanvasTexture(brushed); brushTex.wrapS = brushTex.wrapT = THREE.RepeatWrapping; brushTex.repeat.set(2, 2);
-  const alu = new THREE.MeshStandardMaterial({ color: '#e3e6ea', metalness: .85, roughness: .32, roughnessMap: brushTex, envMapIntensity: 1.1 });
-  const aluDark = new THREE.MeshStandardMaterial({ color: '#c3c7cd', metalness: .85, roughness: .4, roughnessMap: brushTex });
-  const black = new THREE.MeshStandardMaterial({ color: '#2a2c30', metalness: .65, roughness: .42 });
+  // brushed aluminium: anisotropic highlights stretched along the grain
+  const alu = new THREE.MeshPhysicalMaterial({ color: '#e4e7eb', metalness: .88, roughness: .34, roughnessMap: brushTex, anisotropy: .35, envMapIntensity: 1.25 });
+  const aluDark = new THREE.MeshStandardMaterial({ color: '#b5b9bf', metalness: .85, roughness: .48, roughnessMap: brushTex });
+  // space black anodised aluminium with a faint satin sheen
+  const black = new THREE.MeshPhysicalMaterial({ color: '#2b2d31', metalness: .6, roughness: .36, clearcoat: .25, clearcoatRoughness: .4 });
   const plastic = new THREE.MeshStandardMaterial({ color: '#141518', metalness: .1, roughness: .55 });
   const shadowCast = m => { m.castShadow = true; m.receiveShadow = true; return m; };
   const box = (w, h, d, mat, x, y, z, r = 0) => { const g = r ? new RoundedBoxGeometry(w, h, d, 3, r) : new THREE.BoxGeometry(w, h, d); const m = shadowCast(new THREE.Mesh(g, mat)); m.position.set(x, y, z); return m; };
@@ -245,10 +251,21 @@
   keys.rotation.x = -Math.PI / 2; keys.position.set(0, .0163, -.045); laptop.add(keys);
   const pad = new THREE.Mesh(new THREE.PlaneGeometry(.15, .085), new THREE.MeshStandardMaterial({ color: '#34363b', metalness: .4, roughness: .3 }));
   pad.rotation.x = -Math.PI / 2; pad.position.set(0, .0163, .07); laptop.add(pad);
+  {
+    const keyGeo = new RoundedBoxGeometry(.0158, .0022, .0158, 2, .002), keyMat = new THREE.MeshStandardMaterial({ color: '#111214', roughness: .75 });
+    const rows = [14, 14, 13, 12, 11], kw = .0194, inst = new THREE.InstancedMesh(keyGeo, keyMat, 14 * 5 + 7), m4 = new THREE.Matrix4();
+    let n = 0;
+    rows.forEach((cnt, r) => { for (let k = 0; k < cnt; k++) { m4.makeTranslation((k - (cnt - 1) / 2) * kw, .0172, -.092 + r * kw); inst.setMatrixAt(n++, m4); } });
+    for (let k = 0; k < 7; k++) { m4.makeTranslation((k - 3) * kw * 1.25, .0172, -.092 + 5 * kw); inst.setMatrixAt(n++, m4); }
+    inst.count = n; inst.castShadow = true; inst.receiveShadow = true; laptop.add(inst);
+    const hinge = new THREE.Mesh(new THREE.CylinderGeometry(.0055, .0055, .3, 16), black); hinge.rotation.z = Math.PI / 2; hinge.position.set(0, .016, -.12); laptop.add(hinge);
+    laptop.add(box(.012, .006, .02, new THREE.MeshStandardMaterial({ color: '#0d0e10', roughness: .5 }), -.184, .008, .02, .002)); // USB-C plug
+  }
   const lid = new THREE.Group(); lid.position.set(0, .016, -.122); lid.rotation.x = -.32; laptop.add(lid);
   lid.add(box(.356, .248, .006, black, 0, .124, -.003, .005));
   const glass = new THREE.Mesh(new THREE.PlaneGeometry(.346, .238), new THREE.MeshStandardMaterial({ color: '#050607', roughness: .08, metalness: .2 }));
   glass.position.set(0, .124, .0002); lid.add(glass);
+  lid.add(box(.03, .0055, .0008, new THREE.MeshStandardMaterial({ color: '#000' }), 0, .2455, .0006)); // camera notch
   // screen corners in lid space (16:10 panel inside the bezel)
   const SCR = [[-.162, .228], [.162, .228], [.162, .025], [-.162, .025]].map(([x, y]) => new THREE.Vector3(x, y, .0006));
 
@@ -266,6 +283,16 @@
   const jtag = box(.07, .022, .045, plastic, .3, TOP + .011, .18, .004); jtag.rotation.y = .3; bench.add(jtag);
   const ribbon = box(.13, .002, .026, new THREE.MeshStandardMaterial({ color: '#b9bcc4', roughness: .6 }), .16, TOP + .002, .22); ribbon.rotation.y = .2; bench.add(ribbon);
   [0, .012].forEach(o => { const t = box(.13, .003, .005, alu, .55, TOP + .002, .24 + o); t.rotation.y = .5 + o * 6; bench.add(t); });
+
+  // soft contact occlusion under everything that touches a surface
+  const blob = document.createElement('canvas'); blob.width = blob.height = 128;
+  { const g = blob.getContext('2d'), gr = g.createRadialGradient(64, 64, 4, 64, 64, 64); gr.addColorStop(0, 'rgba(0,0,0,.75)'); gr.addColorStop(.5, 'rgba(0,0,0,.35)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, 128, 128); }
+  const blobMat = new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(blob), transparent: true, depthWrite: false });
+  const ao = (w, d, x, y, z, ry = 0, o = 1) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), blobMat.clone()); m.material.opacity = o; m.rotation.x = -Math.PI / 2; m.rotation.z = ry; m.position.set(x, y, z); bench.add(m); };
+  ao(.46, .34, -.36, TOP + .0012, .045, .12, .8);
+  ao(.3, .24, .02, TOP + .0012, -.17, .2, .7); ao(.3, .24, .27, TOP + .0012, -.15, -.25, .7);
+  [[-.74, -.32], [-.74, .32], [.74, -.32], [.74, .32]].forEach(([x, z]) => ao(.22, .22, x, .002, z, 0, .9));
+  ao(.7, .9, .48, .002, 0, 0, .8);
 
   // cable: laptop port, over the table edge, down to the floor and away towards the Tesla
   const path = new THREE.CatmullRomCurve3([
@@ -290,9 +317,13 @@
   }
 
   let vw = 0, vh = 0, mobile = false, dirty = true;
+  const composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, cam3));
+  const ssao = new SSAOPass(scene, cam3, 1, 1); ssao.kernelRadius = .09; ssao.minDistance = .0006; ssao.maxDistance = .06; composer.addPass(ssao);
+  composer.addPass(new OutputPass());
   function measure() {
     vw = stage.clientWidth; vh = stage.clientHeight; mobile = vw <= 760;
-    renderer.setSize(vw, vh, false); cam3.aspect = vw / vh;
+    renderer.setSize(vw, vh, false); composer.setSize(vw, vh); ssao.setSize(vw, vh); cam3.aspect = vw / vh;
     cam3.fov = mobile ? 52 : 36;
     // shift the frame so the laptop sits right of centre on desktop, low centre on phones
     if (mobile) cam3.setViewOffset(vw, vh, 0, -vh * .2, vw, vh); else cam3.setViewOffset(vw, vh, -vw * .17, vh * .06, vw, vh);
@@ -305,7 +336,7 @@
     const hover = reduce ? 0 : Math.sin(now / 1600) * .006;
     cam3.position.set(T.x + Math.sin(a) * dist, hgt + hover, T.z + Math.cos(a) * dist);
     cam3.lookAt(T);
-    renderer.render(scene, cam3);
+    if (mobile) renderer.render(scene, cam3); else composer.render();
     // live screen: project the panel corners and map the html screen onto them
     lid.updateWorldMatrix(true, false);
     const pts = SCR.map(c => { v3.copy(c); lid.localToWorld(v3); v3.project(cam3); return [(v3.x + 1) / 2 * vw, (1 - v3.y) / 2 * vh]; });
